@@ -101,7 +101,6 @@ void Poly::rotatePolyXAxis(float deg){
 }
 
 void Poly::rotatePolyYAxis(float deg){
-  cout << "ROTATING Y BY " << deg << " DEGREES" << endl;;
   float xNew;
   float yNew;
   float zNew;
@@ -132,6 +131,74 @@ void Poly::rotatePolyZAxis(float deg){
     zpoints[i] = zNew;
   }
 }
+
+//rotate into xy plane using x axis rotation
+void Poly::rotateIntoXYPlane(float adj, float opp, float hyp){
+  float xNew;
+  float yNew;
+  float zNew;
+  //float radian =  deg * M_PI  / 180.0;
+  for(int i = 0; i < getNumPoints(); i++){
+    xNew = 1*xpoints[i] + 0*ypoints[i] + 0*zpoints[i];
+    yNew = 0*xpoints[i] + (adj/hyp)*ypoints[i] - (opp/hyp)*zpoints[i];
+    zNew = 0*xpoints[i] + (opp/hyp)*ypoints[i] + (adj/hyp)*zpoints[i];
+
+    xpoints[i] = xNew;
+    ypoints[i] = yNew;
+    zpoints[i] = zNew;
+  }
+}
+
+void Poly::rotateOutOfXYPlane(float adj, float opp, float hyp){
+  float xNew;
+  float yNew;
+  float zNew;
+  //float radian =  deg * M_PI  / 180.0;
+  for(int i = 0; i < getNumPoints(); i++){
+    xNew = 1*xpoints[i] + 0*ypoints[i] + 0*zpoints[i];
+    yNew = 0*xpoints[i] + (adj/hyp)*ypoints[i] + (opp/hyp)*zpoints[i];
+    zNew = 0*xpoints[i] - (opp/hyp)*ypoints[i] + (adj/hyp)*zpoints[i];
+
+    xpoints[i] = xNew;
+    ypoints[i] = yNew;
+    zpoints[i] = zNew;
+  }
+}
+
+//rotate into z axis using y axis rotation; into needs a negative rotation, bc rhr for y axis
+void Poly::rotateIntoZAxis(float adj, float opp, float hyp){
+  float xNew;
+  float yNew;
+  float zNew;
+  //float radian =  deg * M_PI  / 180.0;
+  for(int i = 0; i < getNumPoints(); i++){
+    xNew = (adj/hyp)*xpoints[i] + 0*ypoints[i] - (opp/hyp)*zpoints[i];
+    yNew = 0*xpoints[i] + 1*ypoints[i] + 0*zpoints[i];
+    zNew = (opp/hyp)*xpoints[i] + 0*ypoints[i] + (adj/hyp)*zpoints[i];
+
+    xpoints[i] = xNew;
+    ypoints[i] = yNew;
+    zpoints[i] = zNew;
+  }
+} 
+
+void Poly::rotateOutOfZAxis(float adj, float opp, float hyp){
+  float xNew;
+  float yNew;
+  float zNew;
+  //float radian =  deg * M_PI  / 180.0;
+  for(int i = 0; i < getNumPoints(); i++){
+    xNew = (adj/hyp)*xpoints[i] + 0*ypoints[i] + (opp/hyp)*zpoints[i];
+    yNew = 0*xpoints[i] + 1*ypoints[i] + 0*zpoints[i];
+    zNew = -(opp/hyp)*xpoints[i] + 0*ypoints[i] + (adj/hyp)*zpoints[i];
+
+    xpoints[i] = xNew;
+    ypoints[i] = yNew;
+    zpoints[i] = zNew;
+  }
+}
+
+
 
 int Poly::getLocalMaxY(){
   int max = ypoints[0];

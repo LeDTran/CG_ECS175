@@ -10,6 +10,8 @@ float* BufferYZ;
 float XMIN, XMAX, YMIN, YMAX, ZMIN, ZMAX;
 float MASTERMIN, MASTERMAX;
 
+int Win1, Win2, Win3;
+
 vector<Poly *> allPoly;
 
 void drawPix(float *Buffer, int x, int y, float red, float green, float blue){
@@ -175,9 +177,9 @@ void updateMinMax(){
   ZMIN = getZMin();
   ZMAX = getZMax();
 
-  cout << "xmin: " << XMIN << ", xmax: " << XMAX << endl;
-  cout << "ymin: " << YMIN << ", ymax: " << YMAX << endl;
-  cout << "zmin: " << ZMIN << ", zmax: " << ZMAX << endl;
+  // cout << "xmin: " << XMIN << ", xmax: " << XMAX << endl;
+  // cout << "ymin: " << YMIN << ", ymax: " << YMAX << endl;
+  // cout << "zmin: " << ZMIN << ", zmax: " << ZMAX << endl;
 
   float mastermin = XMIN;
   float mastermax = XMAX;
@@ -199,30 +201,28 @@ void updateMinMax(){
   MASTERMIN = mastermin;
   MASTERMAX = mastermax;
 
-  cout <<"mastermin:  " << MASTERMIN << ", mastermax: " << MASTERMAX << endl;
-
+  //cout <<"mastermin:  " << MASTERMIN << ", mastermax: " << MASTERMAX << endl;
 }
 
 float getRatio(float coord, char axis){
   float ratio, newcoord;
-  //only NDC if have polygons out side 200*200 area
   if(axis == 'x'){
     //cout << "coord: " << coord << ", xaxis: " << axis << endl;
-    ratio = (float)(coord - XMIN) / (float)(MASTERMAX - MASTERMIN);
+    ratio = (coord - XMIN) / (MASTERMAX - MASTERMIN);
     newcoord = 199*ratio;
     //cout << "ratio: " << ratio << ", xnewcoord: " << newcoord << endl;
     return newcoord;
   }
   if(axis == 'y'){
     //cout << "coord: " << coord << ", yaxis: " << axis << endl;
-    ratio = (float)(coord - YMIN) / (float)(MASTERMAX - MASTERMIN);
+    ratio = (coord - YMIN) / (MASTERMAX - MASTERMIN);
     newcoord = 199*ratio;
     //cout << "ratio: " << ratio << ", ynewcoord: " << newcoord << endl;
     return newcoord;
   }
   if(axis == 'z'){
     //cout << "coord: " << coord << ", zaxis: " << axis << endl;
-    ratio = (float)(coord - ZMIN) / (float)(MASTERMAX - MASTERMIN);
+    ratio = (coord - ZMIN) / (MASTERMAX - MASTERMIN);
     newcoord = 199*ratio;
     //cout << "ratio: " << ratio << ", znewcoord: " << newcoord << endl;
     return newcoord;
@@ -230,7 +230,7 @@ float getRatio(float coord, char axis){
   return coord;
 }
 
-void drawLineDDA(float *Buffer, float * fp1, float *fp2){//, bool ispoly, int p){
+void drawLineDDA(float *Buffer, float * fp1, float *fp2, float r, float g, float b){//, bool ispoly, int p){
 
   //convert float points to int points
   int p1[2], p2[2];
@@ -276,7 +276,7 @@ void drawLineDDA(float *Buffer, float * fp1, float *fp2){//, bool ispoly, int p)
       //   allPoly[p]->addEdgeX(point[0]);
       //   allPoly[p]->addEdgeY(point[1]);
       // }
-      drawPix(Buffer, point[0], point[1], 1, 1, 1);
+      drawPix(Buffer, point[0], point[1], r, g, b);
       x = x + 1;
     }
   }
@@ -297,7 +297,7 @@ void drawLineDDA(float *Buffer, float * fp1, float *fp2){//, bool ispoly, int p)
       //   allPoly[p]->addEdgeX(point[0]);
       //   allPoly[p]->addEdgeY(point[1]);
       // }
-      drawPix(Buffer, point[0], point[1], 1, 1, 1);
+      drawPix(Buffer, point[0], point[1], r, g, b);
       if(dy > 1){
         y = y + 1;
       }
@@ -316,7 +316,7 @@ void drawPolygon(int p){
 
     // cout << "P1: " << linepoint1 << ", P2: " << linepoint2 << endl;
 
-    //get coords1 xyz
+    //get coords1 xyz1
     float lpoint1[3];
     lpoint1[0] = allPoly[p]->getXPoint(linepoint1);
     lpoint1[1] = allPoly[p]->getYPoint(linepoint1);
@@ -325,7 +325,7 @@ void drawPolygon(int p){
     // cout << ", y1: " << lpoint1[1]; 
     // cout << ", z1: " << lpoint1[2] << endl;
 
-    //get coords2 xyz
+    //get coords2 xyz2
     float lpoint2[3];
     lpoint2[0] = allPoly[p]->getXPoint(linepoint2);
     lpoint2[1] = allPoly[p]->getYPoint(linepoint2);
@@ -338,71 +338,49 @@ void drawPolygon(int p){
     float point2[2];
 
     //plot XY
-    // point1[0] = lpoint1[0];
-    // point1[1] = lpoint1[1];
-    // point2[0] = lpoint2[0];
-    // point2[1] = lpoint2[1];
-    // int hey = getRatio(lpoint1[0], 'x');
-    // hey = getRatio(lpoint1[1], 'y');
-    // hey = getRatio(lpoint2[0], 'x');
-    // hey = getRatio(lpoint2[1], 'y');
-
     point1[0] = getRatio(lpoint1[0], 'x');
     point1[1] = getRatio(lpoint1[1], 'y');
     point2[0] = getRatio(lpoint2[0], 'x');
     point2[1] = getRatio(lpoint2[1], 'y');
-    drawLineDDA(BufferXY, point1, point2);
+    drawLineDDA(BufferXY, point1, point2, 1, 0, 0);
 
     //plot XZ
     point1[0] = getRatio(lpoint1[0], 'x');
     point1[1] = getRatio(lpoint1[2], 'z');
     point2[0] = getRatio(lpoint2[0], 'x');
     point2[1] = getRatio(lpoint2[2], 'z');   
-    drawLineDDA(BufferXZ, point1, point2);
+    drawLineDDA(BufferXZ, point1, point2, 0, 1, 0);
 
     //plot YZ
     point1[0] = getRatio(lpoint1[1], 'y');
     point1[1] = getRatio(lpoint1[2], 'z');
     point2[0] = getRatio(lpoint2[1], 'y');
     point2[1] = getRatio(lpoint2[2], 'z');
-    drawLineDDA(BufferYZ, point1, point2);
+    drawLineDDA(BufferYZ, point1, point2, 0, 0, 1);
 
-    // //get next coord
-    // int point2[2];
-    // int j;
-    // if(i == (allPoly[p]->getNumPoints()) - 1){
-    //   j = 0;
-    // }
-    // else{
-    //   j = i + 1;
-    // }
-    // point2[0] = allPoly[p]->getXPoint(j);
-    // point2[1] = allPoly[p]->getYPoint(j);
+    // //plot XY
+    // point1[0] = lpoint1[0];
+    // point1[1] = lpoint1[1];
+    // point2[0] = lpoint2[0];
+    // point2[1] = lpoint2[1];
+    // drawLineDDA(BufferXY, point1, point2);
 
-    // drawLineDDA(point1, point2, true, p);
-    // //drawLineBresenham(point1, point2, true, p);
+    // //plot XZ
+    // point1[0] = lpoint1[0];
+    // point1[1] = lpoint1[2];
+    // point2[0] = lpoint2[0];
+    // point2[1] = lpoint2[2];   
+    // drawLineDDA(BufferXZ, point1, point2);
+
+    // //plot YZ
+    // point1[0] = lpoint1[1];
+    // point1[1] = lpoint1[2];
+    // point2[0] = lpoint2[1];
+    // point2[1] = lpoint2[2];
+    // drawLineDDA(BufferYZ, point1, point2);
+
+
   }
-  // int point1[2];
-  // int point2[2];
-
-  // point1[0] = 0;
-  // point1[1] = 200;
-  // point2[0] = 200;
-  // point2[1] = 200;
-  // drawLineDDA(BufferXY, point1, point2);
-
-  // point1[0] = 0;
-  // point1[1] = 200;
-  // point2[0] = 200;
-  // point2[1] = 200;   
-  // drawLineDDA(BufferXZ, point1, point2);
-
-  // point1[0] = 0;
-  // point1[1] = 200;
-  // point2[0] = 200;
-  // point2[1] = 200;
-  // drawLineDDA(BufferYZ, point1, point2);
-  // cout << "DRAWN" << endl;
 }
 
 //translate poly given change in x and change in y
@@ -422,6 +400,30 @@ void scalePolygon(int p, float sx, float sy, float sz){
 }
 
 void rotatePolygon(int p, float x1, float y1, float z1, float x2, float y2, float z2, float pdeg){
+  //draw axis
+  float point1[2];
+  float point2[2];
+  //plot XY
+  point1[0] = getRatio(x1, 'x');
+  point1[1] = getRatio(y1, 'y');
+  point2[0] = getRatio(x2, 'x');
+  point2[1] = getRatio(y2, 'y');
+  drawLineDDA(BufferXY, point1, point2, 1, 0, 0);
+
+  //plot XZ
+  point1[0] = getRatio(x1, 'x');
+  point1[1] = getRatio(y1, 'z');
+  point2[0] = getRatio(x2, 'x');
+  point2[1] = getRatio(y2, 'z');   
+  drawLineDDA(BufferXZ, point1, point2, 0, 1, 0);
+
+  //plot YZ
+  point1[0] = getRatio(y1, 'y');
+  point1[1] = getRatio(z1, 'z');
+  point2[0] = getRatio(y2, 'y');
+  point2[1] = getRatio(z2, 'z');
+  drawLineDDA(BufferYZ, point1, point2, 0, 0, 1);
+
   //check if rotation axis is one of xyz axis
   //if x axis rotation
   if((y1 == 0 && y2 == 0) && (z1 == 0 && z2 == 0)){
@@ -430,12 +432,53 @@ void rotatePolygon(int p, float x1, float y1, float z1, float x2, float y2, floa
   }
   //if y axis rotation
   else if((x1 == 0 && x2 == 0) && (z1 == 0 && z2 == 0)){
-    cout << "Y AXIS" << endl;
+    //cout << "Y AXIS" << endl;
     allPoly[p]->rotatePolyYAxis(pdeg);
   }
+  //if z axis rotation
   else if((x1 == 0 && x2 == 0) && (y1 == 0 && y2 == 0)){
-    cout << "Z AXIS" << endl;
+    //cout << "Z AXIS" << endl;
     allPoly[p]->rotatePolyZAxis(pdeg);
+  }
+  //if arbitrary axis rotation
+  else{
+    //translate rotation axis through origin
+    x2 = x2 - x1;
+    y2 = y2 - y1;
+    z2 = z2 - z1;
+    allPoly[p]->translatePoly(-x1, -y1, -z1);
+
+    //rotate into xz-plane
+    float a = z2;
+    float o = y2;
+    float hyp = sqrt(pow(z2, 2) + pow(y2, 2));
+    //cout << "a: " << a << ", o: " << o << ", hyp: " << hyp << endl;
+    allPoly[p]->rotateIntoXYPlane(a, o, hyp);
+
+    float nx2, ny2, nz2;
+    nx2 = 1*x2 + 0*y2 + 0*z2;
+    ny2 = 0*x2 + (a/hyp)*y2 - (o/hyp)*z2;
+    nz2 = 0*x2 + (o/hyp)*y2 + (a/hyp)*z2;
+
+    a = nz2;
+    o = nx2;
+    hyp = sqrt(pow(nz2, 2) + pow(nx2, 2));
+    //cout << "a2: " << a << ", o2: " << o << ", hyp2: " << hyp << endl;
+    allPoly[p]->rotateIntoZAxis(a, o, hyp);
+
+    allPoly[p]->rotatePolyZAxis(pdeg);
+
+    a = nz2;
+    o = nx2;
+    hyp = sqrt(pow(nz2, 2) + pow(nx2, 2));
+    allPoly[p]->rotateOutOfZAxis(a, o, hyp);
+
+    a = z2;
+    o = y2;    
+    hyp = sqrt(pow(z2, 2) + pow(y2, 2));
+    allPoly[p]->rotateOutOfXYPlane(a, o, hyp);
+
+    allPoly[p]->translatePoly(x1, y1, z1);
   }
 
 }
@@ -480,6 +523,15 @@ void drawScene(){
 
   //draw all polygons
   for(int i = 0; i < (int) allPoly.size(); i++){
+
+    // for(int j = 0; j < allPoly[i]->getNumPoints(); j++){
+    //   cout << "x: " << allPoly[i]->getXPoint(j) << ", y: " << allPoly[i]->getYPoint(j) << ", z: " << allPoly[i]->getZPoint(j) << endl;
+    // }
+    // for(int j = 0; j < allPoly[i]->getNumLineP(); j++){
+    //   cout << "p1: " << allPoly[i]->getLineP1(j) << ", p2: " << allPoly[i]->getLineP2(j) << endl;
+    // }
+
+
     //need to reset edge points for rasterization after a transformation
     //allPoly[i]->resetEdgePoints();
     drawPolygon(i);
@@ -497,19 +549,116 @@ void drawScene(){
   point1[1] = 0;
   point2[0] = 199;
   point2[1] = 199;
-  drawLineDDA(BufferXY, point1, point2);//, true, p);
-  drawLineDDA(BufferXZ, point1, point2);
-  drawLineDDA(BufferYZ, point1, point2);
+  drawLineDDA(BufferXY, point1, point2, 1, 1, 1);//, true, p);
+  drawLineDDA(BufferXZ, point1, point2, 1, 1, 1);
+  drawLineDDA(BufferYZ, point1, point2, 1, 1, 1);
   point1[0] = 0;
   point1[1] = 0;
   point2[0] = 199;
   point2[1] = 0;
-  drawLineDDA(BufferXY, point1, point2);//, true, p);
-  drawLineDDA(BufferXZ, point1, point2);
-  drawLineDDA(BufferYZ, point1, point2);
+  drawLineDDA(BufferXY, point1, point2, 1, 1, 1);//, true, p);
+  drawLineDDA(BufferXZ, point1, point2, 1, 1, 1);
+  drawLineDDA(BufferYZ, point1, point2, 1, 1, 1);
+
+  glutSetWindow(Win1);
+  glutPostRedisplay();
+  glutSetWindow(Win2);
+  glutPostRedisplay();
+  glutSetWindow(Win3);
+  glutPostRedisplay();
+}
+
+void updateRotate(int i){ 
+  for(int i = 0; i < allPoly.size(); i++){
+    rotatePolygon(i, 
+    0, 0, 0, 
+    100, 100, 100,
+    1);
+  }
+  drawScene();  
+  glutTimerFunc(30, updateRotate, 0);
+}
+
+void startAnimation(){
+  glutTimerFunc(30, updateRotate, 0);
+}
+
+void readData(){
+  string line;
+  ifstream myfile ("save.dat");
+  if (myfile.is_open()){
+    while(getline(myfile, line)){
+      //read in polygon
+      if(line[0] == 'P'){
+        //read in number of points
+        int numpoints;
+        getline(myfile, line);
+        istringstream iss1(line);
+        iss1 >> numpoints;
+        //cout << "numpoints: " << numpoints << endl;
+
+        //read in points
+        float x, y, z;
+        vector<float> xs;
+        vector<float> ys;
+        vector<float> zs;
+        xs.clear();
+        ys.clear();
+        zs.clear();
+        for(int i = 0; i < numpoints; i++){
+          getline(myfile, line);
+          istringstream iss2(line);
+          iss2 >> x >> y >> z;
+          //cout << "x: " << x << ", y: " << y << ", z: " << z << endl;
+          xs.push_back(x);
+          ys.push_back(y);
+          zs.push_back(z);
+        }
+
+        //read in num edges
+        int numedges;
+        getline(myfile, line);
+        istringstream iss3(line);
+        iss3 >> numedges;
+        //cout << "numedges: " << numedges << endl;
+
+        //read in points
+        int pt1, pt2;
+        vector<int> p1;
+        vector<int> p2;
+        p1.clear();
+        p2.clear();
+        for(int i = 0; i < numedges; i++){
+          getline(myfile, line);
+          istringstream iss4(line);
+          iss4 >> pt1 >> pt2;
+          //cout << "pt1: " << pt1 << ", pt2: " << pt2 << endl;
+          //edge points read in as number, need to convert to vecctor index
+          pt1 = pt1 - 1;
+          pt2 = pt2 - 1;
+          p1.push_back(pt1);
+          p2.push_back(pt2);
+        }
+
+        Poly * myPoly = new Poly(xs, ys, zs, p1, p2); 
+        allPoly.push_back(myPoly);
+      }
+      //cout << line << endl;
+    }
+    myfile.close();
+  }
 }
 
 int main(int argc, char *argv[]){
+
+  char choice;
+  cout << "Would you like to load 'save.dat? (y/n): ";
+  cin >> choice;
+  if(choice == 'y'){
+    cout << "LOADING save.dat" << endl;
+    readData();
+  }
+
   //allocate new pixel buffer, need initialization!!
   //main buffer 200*200
   PixelBuffer = new float[400 * 400 * 3];
@@ -543,118 +692,8 @@ int main(int argc, char *argv[]){
     BufferYZ[i] = 0;
   }
 
-
-
-  vector<float> xs;
-  vector<float> ys;
-  vector<float> zs;
-
-  xs.push_back(0);
-  ys.push_back(0);
-  zs.push_back(0);
-  xs.push_back(50);
-  ys.push_back(0);
-  zs.push_back(0);
-  xs.push_back(0);
-  ys.push_back(50);
-  zs.push_back(0);
-  xs.push_back(0);
-  ys.push_back(0);
-  zs.push_back(50);
-
-  vector<int> p1;
-  vector<int> p2;
-  //point index, not point number
-  p1.push_back(0);
-  p2.push_back(1);
-  p1.push_back(0);
-  p2.push_back(2);
-  p1.push_back(0);
-  p2.push_back(3);
-  p1.push_back(1);
-  p2.push_back(2);
-  p1.push_back(1);
-  p2.push_back(3);
-  p1.push_back(2);
-  p2.push_back(3);
-  
-  // xs.clear();
-  // ys.clear();
-  // zs.clear();
-
-  // xs.push_back(50);
-  // ys.push_back(0);
-  // zs.push_back(0);
-
-  // xs.push_back(50);
-  // ys.push_back(50);
-  // zs.push_back(0);
-
-  // xs.push_back(50);
-  // ys.push_back(0);
-  // zs.push_back(50);
-  
-  // xs.push_back(50);
-  // ys.push_back(50);
-  // zs.push_back(50);
-
-  // xs.push_back(0);
-  // ys.push_back(0);
-  // zs.push_back(50);
-
-  // xs.push_back(0);
-  // ys.push_back(50);
-  // zs.push_back(50);
-
-  // xs.push_back(0);
-  // ys.push_back(0);
-  // zs.push_back(0);
-  
-  // xs.push_back(0);
-  // ys.push_back(50);
-  // zs.push_back(0);
-
-  // p1.clear();
-  // p2.clear();
-
-  // p1.push_back(0);
-  // p2.push_back(1);
-  
-  // p1.push_back(0);
-  // p2.push_back(2);
-  
-  // p1.push_back(0);
-  // p2.push_back(6);
-
-  // p1.push_back(1);
-  // p2.push_back(3);
-
-  // p1.push_back(1);
-  // p2.push_back(7);
-
-  // p1.push_back(2);
-  // p2.push_back(3);
-
-  // p1.push_back(2);
-  // p2.push_back(4);
-  
-  // p1.push_back(3);
-  // p2.push_back(5);
-  
-  // p1.push_back(4);
-  // p2.push_back(5);
-
-  // p1.push_back(4);
-  // p2.push_back(6);
-
-  // p1.push_back(5);
-  // p2.push_back(7);
-
-  // p1.push_back(6);
-  // p2.push_back(7);
-
-  Poly * myPoly = new Poly(xs, ys, zs, p1, p2); 
-  allPoly.push_back(myPoly);
+  // Poly * myPoly = new Poly(xs, ys, zs, p1, p2); 
+  // allPoly.push_back(myPoly);
 
   // cout << "HEYO!!!" << endl;
   // cout << "NUM: " << allPoly[0]->getNumPoints() << endl;
@@ -666,110 +705,6 @@ int main(int argc, char *argv[]){
   // }
   // cout << "1--------" << endl;
 
-  xs.clear();
-  ys.clear();
-  zs.clear();
-  // xs.push_back(120);
-  // ys.push_back(120);
-  // zs.push_back(120);
-  // xs.push_back(170);
-  // ys.push_back(120);
-  // zs.push_back(120);
-  // xs.push_back(120);
-  // ys.push_back(170);
-  // zs.push_back(120);
-  // xs.push_back(120);
-  // ys.push_back(120);
-  // zs.push_back(170);
-
-  // xs.push_back(0);
-  // ys.push_back(0);
-  // zs.push_back(0);
-  // xs.push_back(50);
-  // ys.push_back(0);
-  // zs.push_back(0);
-  // xs.push_back(0);
-  // ys.push_back(50);
-  // zs.push_back(0);
-  // xs.push_back(0);
-  // ys.push_back(0);
-  // zs.push_back(50);
-
-  xs.push_back(50);
-  ys.push_back(0);
-  zs.push_back(0);
-
-  xs.push_back(50);
-  ys.push_back(50);
-  zs.push_back(0);
-
-  xs.push_back(50);
-  ys.push_back(0);
-  zs.push_back(50);
-  
-  xs.push_back(50);
-  ys.push_back(50);
-  zs.push_back(50);
-
-  xs.push_back(0);
-  ys.push_back(0);
-  zs.push_back(50);
-
-  xs.push_back(0);
-  ys.push_back(50);
-  zs.push_back(50);
-
-  xs.push_back(0);
-  ys.push_back(0);
-  zs.push_back(0);
-  
-  xs.push_back(0);
-  ys.push_back(50);
-  zs.push_back(0);
-
-  p1.clear();
-  p2.clear();
-
-
-  p1.push_back(0);
-  p2.push_back(1);
-  
-  p1.push_back(0);
-  p2.push_back(2);
-  
-  p1.push_back(0);
-  p2.push_back(6);
-
-  p1.push_back(1);
-  p2.push_back(3);
-
-  p1.push_back(1);
-  p2.push_back(7);
-
-  p1.push_back(2);
-  p2.push_back(3);
-
-  p1.push_back(2);
-  p2.push_back(4);
-  
-  p1.push_back(3);
-  p2.push_back(5);
-  
-  p1.push_back(4);
-  p2.push_back(5);
-
-  p1.push_back(4);
-  p2.push_back(6);
-
-  p1.push_back(5);
-  p2.push_back(7);
-
-  p1.push_back(6);
-  p2.push_back(7);
-
-  Poly * myPoly2 = new Poly(xs, ys, zs, p1, p2); 
-  allPoly.push_back(myPoly2);
-
   // for(int i = 0; i < (int) allPoly[1]->getNumPoints(); i++){
   //   cout << "x: " << allPoly[1]->getXPoint(i);
   //   cout << ", y: " << allPoly[1]->getYPoint(i);
@@ -778,16 +713,18 @@ int main(int argc, char *argv[]){
   // cout << "2--------" << endl;
 
 
-  Poly * myPoly3 = new Poly(xs, ys, zs, p1, p2); 
-  allPoly.push_back(myPoly3);
-  translatePolygon(1, 100, 100, 100);
-  translatePolygon(2, 100, 100, 100);
+  // Poly * myPoly3 = new Poly(xs, ys, zs, p1, p2); 
+  // allPoly.push_back(myPoly3);
+  //translatePolygon(0, 100, 100, 100);
+  //translatePolygon(2, 100, 100, 100);
+  // translatePolygon(1, 100, -200, 100);
+  // translatePolygon(2, -200, 100, 100);
   //scalePolygon(1, 1.5, 1.5, 1.5);
-  rotatePolygon(2, 
-  0, 0, 5, 
-  0, 0, 10, 
-  180);
-  //rotatePolygon(1, 5, 0, 0, 10, 0, 0, 180);
+  // rotatePolygon(0, 
+  // 5, 0, 0, 
+  // 10, 0, 0, 
+  // 90);
+  //rotatePolygon(1, 0, 0, 0, 100, 100, 0, 45);
 
 
   // for(int i = 0; i < (int) allPoly[1]->getNumPoints(); i++){
@@ -797,20 +734,22 @@ int main(int argc, char *argv[]){
   // }
   // cout << "3--------" << endl;
 
-  drawScene();
+  //cout << "after initial draw" << endl;
 
   //create subwindows
   //the 5 parameters are: main window ID, xpos, ypos, width, height
   //[2][3]
   //[1][x]
-  int Win1 = glutCreateSubWindow(MainWindow, 0, 200, 200, 200);
+  Win1 = glutCreateSubWindow(MainWindow, 0, 200, 200, 200);
   glutDisplayFunc(display1);
-
-  int Win2 = glutCreateSubWindow(MainWindow, 0, 0, 200, 200);
+  Win2 = glutCreateSubWindow(MainWindow, 0, 0, 200, 200);
   glutDisplayFunc(display2);
-
-  int Win3 = glutCreateSubWindow(MainWindow, 200, 0, 200, 200);
+  Win3 = glutCreateSubWindow(MainWindow, 200, 0, 200, 200);
   glutDisplayFunc(display3);
+
+  drawScene(); 
+
+  startAnimation();
 
   glutMainLoop();//main display loop, will display until terminate
   return 0;

@@ -37,6 +37,11 @@ class Poly{
     void rotatePolyXAxis(float deg);
     void rotatePolyYAxis(float deg);
     void rotatePolyZAxis(float deg);
+    void rotateIntoXYPlane(float adj, float opp, float hyp);
+    void rotateOutOfXYPlane(float adj, float opp, float hyp);
+    void rotateIntoZAxis(float adj, float opp, float hyp);
+    void rotateOutOfZAxis(float adj, float opp, float hyp);
+
 
     int getLocalMaxY();
     int getLocalMinY();

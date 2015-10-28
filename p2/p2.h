@@ -23,7 +23,7 @@ float getZMin();
 float getZMax();
 void updateMinMax();
 float getRatio(float coord, char axis);
-void drawLineDDA(float *Buffer, float *fp1, float *fp2);
+void drawLineDDA(float *Buffer, float *fp1, float *fp2, float r, float g, float b);
 void drawPolygon(int p);
 void translatePolygon(int p, float dx, float dy, float dz);
 void scalePolygon(int p, float sx, float sy, float sz);
