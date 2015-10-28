@@ -1,0 +1,19 @@
+If you only want to use Linux based system (Fedora, Ubuntu...) to develop your project, 
+please use the following setup.
+
+If you are using Fedora on CSIF computers, skip to Compiling step, GLUT and OpenGL is already installed
+
+-Install C,C++ compiler
+	- Open "Terminal" and enter:
+		>sudo apt-get install build-essential
+		might have to first do:
+			>sudo apt-get update
+		
+- FreeGLUT and OpenGL
+	- Install FreeGlut and OpenGL
+		>sudo apt-get install freeglut3-dev
+
+-Compiling, if there's only one source file (replace sample.cpp with your source file name)
+	>g++ sample.cpp -lglut -lGL
+
+If you have more than one source file, you might need to use multiple compiling commands or a makefile.
