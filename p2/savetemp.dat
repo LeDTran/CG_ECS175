@@ -226,3 +226,33 @@ P
 100 100 100
 1
 1 2
+
+___________________________
+
+
+  // //XY
+  // //Red
+  // drawPix(BufferXY, 100, 100, 1, 0, 0);
+  // drawPix(BufferXY, 100, 99, 1, 0, 0);
+  // drawPix(BufferXY, 101, 100, 1, 0, 0);
+  // drawPix(BufferXY, 101, 99, 1, 0, 0);
+  // drawPix(BufferXY, 102, 100, 1, 0, 0);
+  // drawPix(BufferXY, 102, 99, 1, 0, 0);
+  
+  // //XZ
+  // //Green
+  // drawPix(BufferXZ, 100, 100, 0, 1, 0);
+  // drawPix(BufferXZ, 100, 99, 0, 1, 0);
+  // drawPix(BufferXZ, 101, 100, 0, 1, 0);
+  // drawPix(BufferXZ, 101, 99, 0, 1, 0);
+  // drawPix(BufferXZ, 102, 100, 0, 1, 0);
+  // drawPix(BufferXZ, 102, 99, 0, 1, 0);
+
+  // //YZ
+  // //Blue
+  // drawPix(BufferYZ, 100, 100, 0, 0, 1);
+  // drawPix(BufferYZ, 100, 99, 0, 0, 1);
+  // drawPix(BufferYZ, 101, 100, 0, 0, 1);
+  // drawPix(BufferYZ, 101, 99, 0, 0, 1);
+  // drawPix(BufferYZ, 102, 100, 0, 0, 1);
+  // drawPix(BufferYZ, 102, 99, 0, 0, 1);

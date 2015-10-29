@@ -27,8 +27,6 @@ float Poly::getZPoint(int i){
 }
 
 float Poly::getNumPoints(){
-  // cout << "INSIDE NUM POINTS" << endl;
-  // cout << "size: " << xpoints.size() << endl;
   return xpoints.size();
 }
 
@@ -197,95 +195,3 @@ void Poly::rotateOutOfZAxis(float adj, float opp, float hyp){
     zpoints[i] = zNew;
   }
 }
-
-
-
-int Poly::getLocalMaxY(){
-  int max = ypoints[0];
-  for(int i = 0; i < (int)ypoints.size(); i++){
-    if(ypoints[i] > max){
-      max = ypoints[i];
-    }
-  }
-  return max;
-}
-
-int Poly::getLocalMinY(){
-  int min = ypoints[0];
-  for(int i = 0; i < (int)ypoints.size(); i++){
-    if(ypoints[i] < min){
-      min = ypoints[i];
-    }
-  }
-  return min;
-}
-
-void Poly::addEdgeX(int x){
-  edgexpoints.push_back(x);
-}
-
-void Poly::addEdgeY(int y){
-  edgeypoints.push_back(y);
-}
-
-void Poly::resetEdgePoints(){
-  edgexpoints.clear();
-  edgeypoints.clear();
-}
-
-void Poly::sortEdgePoints(){
-  int i, j, tmpx, tmpy;
-  for (i = 1; i < getNumEdgePoints(); i++){
-    j = i; 
-    while(j > 0 && edgeypoints[j - 1] > edgeypoints[j]){
-      tmpx = edgexpoints[j];
-      tmpy = edgeypoints[j];
-      edgexpoints[j] = edgexpoints[j - 1];
-      edgeypoints[j] = edgeypoints[j - 1];
-      edgexpoints[j - 1] = tmpx;
-      edgeypoints[j - 1] = tmpy;
-      j--;
-    }
-  }
-
-  int low = 0, high = 0;
-  while(low < getNumEdgePoints()){
-    high++;
-    if(edgeypoints[high] != edgeypoints[high -1]){
-      for (i = low; i < high; i++){
-        j = i; 
-        while(j > low && edgexpoints[j - 1] > edgexpoints[j]){
-          tmpx = edgexpoints[j];
-          tmpy = edgeypoints[j];
-          edgexpoints[j] = edgexpoints[j - 1];
-          edgeypoints[j] = edgeypoints[j - 1];
-          edgexpoints[j - 1] = tmpx;
-          edgeypoints[j - 1] = tmpy;
-          j--;
-        }
-      }
-      low = high;
-    }
-  }
-}
-
-int Poly::getNumEdgePoints(){
-  return edgexpoints.size();
-}
-
-int Poly::getEdgeXPoint(int i){
-  return edgexpoints[i];
-}
-
-int Poly::getEdgeYPoint(int i){
-  return edgeypoints[i];
-}
-
-// void Poly::turnOnRasterization(){
-//   israsterized = true;
-// }
-
-// bool Poly::getIsRasterized(){
-//   return israsterized;
-// }
-

@@ -41,19 +41,6 @@ class Poly{
     void rotateOutOfXYPlane(float adj, float opp, float hyp);
     void rotateIntoZAxis(float adj, float opp, float hyp);
     void rotateOutOfZAxis(float adj, float opp, float hyp);
-
-
-    int getLocalMaxY();
-    int getLocalMinY();
-    void addEdgeX(int x);
-    void addEdgeY(int y);
-    void resetEdgePoints();
-    void sortEdgePoints();
-    int getNumEdgePoints();
-    int getEdgeXPoint(int i);
-	int getEdgeYPoint(int i);
-    // void turnOnRasterization();
-    // bool getIsRasterized();
 };
 
 #endif
