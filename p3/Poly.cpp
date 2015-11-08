@@ -7,13 +7,13 @@ Poly::Poly(){
 Poly::Poly(vector<float> xs, vector<float> ys, vector<float> zs, 
             vector<int> lp1, vector<int> lp2, 
             vector<int> fp1, vector<int> fp2, vector<int> fp3,
-            vector<float> fnp1, vector<float> fnp2, vector<float> fnp3){
+            vector<float> fnx, vector<float> fny, vector<float> fnz){
   //all points of poly
 	xpoints = xs;
 	ypoints = ys;
   zpoints = zs;
 
-  //edges of poly
+  //edges of poly 
   linep1 = lp1;
   linep2 = lp2;
 
@@ -23,9 +23,9 @@ Poly::Poly(vector<float> xs, vector<float> ys, vector<float> zs,
   facep3 = fp3;
 
   //normal for each surface
-  fnormp1 = fnp1;
-  fnormp2 = fnp2;
-  fnormp3 = fnp3;
+  fnormx = fnx;
+  fnormy = fny;
+  fnormz = fnz;
 
   //israsterized = rasterizationstate;
 }
@@ -43,12 +43,12 @@ void Poly::printData(){
 
   cout << "face points" << endl;
   for(int i = 0; i < (int)facep1.size(); i++){
-    cout << facep1[i] + 1 << " " << facep2[i] + 1 << facep3[i] + 1 << endl;
+    cout << facep1[i] + 1 << " " << facep2[i] + 1 << " " << facep3[i] + 1 << endl;
   }
 
   cout << "normal points" << endl;
   for(int i = 0; i < (int)facep1.size(); i++){
-    cout << fnormp1[i] << " " << fnormp2[i] << " " << fnormp3[i] << " " << endl;
+    cout << fnormx[i] << " " << fnormy[i] << " " << fnormz[i] << " " << endl;
   }
   cout << "------------------------------------" << endl;
 }
@@ -233,4 +233,46 @@ void Poly::rotateOutOfZAxis(float adj, float opp, float hyp){
     ypoints[i] = yNew;
     zpoints[i] = zNew;
   }
+}
+
+float Poly::getVertexNormalX(int j){
+  //cout << "vertex num: " << j+1 << endl;
+  float normx = 0;
+  for(int i = 0; i < (int)facep1.size(); i++){
+    //cout << "fp1: " << facep1[i] << ", fp2: " << facep2[i] << ", fp3: " << facep3[i] << endl;
+    if(facep1[i] == j || facep2[i] == j || facep3[i] == j){
+      //cout << facep1[i] + 1 << " " << facep2[i] + 1 << " " << facep3[i] + 1 << endl;
+      normx = normx + fnormx[i];
+    }
+  }
+  //cout << "normx: " << normx << endl;
+  return normx;
+}
+
+float Poly::getVertexNormalY(int j){
+  //cout << "vertex num: " << j+1 << endl;
+  float normy = 0;
+  for(int i = 0; i < (int)facep1.size(); i++){
+    //cout << "fp1: " << facep1[i] << ", fp2: " << facep2[i] << ", fp3: " << facep3[i] << endl;
+    if(facep1[i] == j || facep2[i] == j || facep3[i] == j){
+      //cout << facep1[i] + 1 << " " << facep2[i] + 1 << " " << facep3[i] + 1 << endl;
+      normy = normy + fnormy[i];
+    }
+  }
+  //cout << "normy: " << normy << endl;
+  return normy;
+}
+float Poly::getVertexNormalZ(int j){
+  //cout << "vertex num: " << j+1 << endl;
+  float normz = 0;
+  for(int i = 0; i < (int)facep1.size(); i++){
+    //cout << "fp1: " << facep1[i] << ", fp2: " << facep2[i] << ", fp3: " << facep3[i] << endl;
+    if(facep1[i] == j || facep2[i] == j || facep3[i] == j){
+      //cout << facep1[i] + 1 << " " << facep2[i] + 1 << " " << facep3[i] + 1 << endl;
+      //cout << "fnormz[i]: " << fnormz[i] << endl;
+      normz = normz + fnormz[i];
+    }
+  }
+  //cout << "normz: " << normz << endl;
+  return normz;
 }

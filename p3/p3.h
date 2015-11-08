@@ -38,3 +38,4 @@ void drawScene();
 void updateRotate(int i);
 void startAnimation();
 void readData();
+void phongLighting(int i, int j);

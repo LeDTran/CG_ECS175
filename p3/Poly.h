@@ -18,9 +18,9 @@ class Poly{
     vector<int> facep2; 
     vector<int> facep3;
             
-    vector<float> fnormp1; 
-    vector<float> fnormp2; 
-    vector<float> fnormp3;
+    vector<float> fnormx; 
+    vector<float> fnormy; 
+    vector<float> fnormz;
  
     vector<int> edgexpoints;
     vector<int> edgeypoints;
@@ -32,7 +32,7 @@ class Poly{
     Poly(vector<float> xs, vector<float> ys, vector<float> zs, 
             vector<int> lp1, vector<int> lp2, 
             vector<int> fp1, vector<int> fp2, vector<int> fp3,
-            vector<float> fnp1, vector<float> fnp2, vector<float> fnp3);
+            vector<float> fnx, vector<float> fny, vector<float> fnz);
     void printData();
     float getXPoint(int i);
     float getYPoint(int i);
@@ -53,6 +53,9 @@ class Poly{
     void rotateOutOfXYPlane(float adj, float opp, float hyp);
     void rotateIntoZAxis(float adj, float opp, float hyp);
     void rotateOutOfZAxis(float adj, float opp, float hyp);
+    float getVertexNormalX(int j);
+    float getVertexNormalY(int j);
+    float getVertexNormalZ(int j);
 };
 
 #endif

@@ -15,6 +15,17 @@ int Win1, Win2, Win3;
 vector<Poly *> allPoly;
 bool isAnimating;
 
+//light source position xyz
+float LightPX, LightPY, LightPZ;
+//viewing position xyz
+float ViewPX, ViewPY, ViewPZ;
+//ambient, diffuse, specular reflection coefficient 
+float ka, kd, ks;
+//ambient light intensity, light source intensity
+float IA, IL;
+//Phong constant
+float PhongConst;
+
 void drawPix(float *Buffer, int x, int y, float red, float green, float blue){
   if(0 <= x && x <= 200 && 0 <= y && y <= 200){
     int pixnum = x + y*200;
@@ -555,7 +566,8 @@ void readData(){
           getline(myfile, line);
           istringstream iss6(line);
           iss6 >> fpt1 >> fpt2 >> fpt3;
-          //edge points read in as number, need to convert to vector index
+          //face points read in as number, need to convert to vector index
+          //cout << "fpt1: " << fpt1 << ", fpt2: " << fpt2 << ", fpt3: " << fpt3 << endl;
           fpt1 = fpt1 - 1;
           fpt2 = fpt2 - 1;
           fpt3 = fpt3 - 1;
@@ -564,32 +576,94 @@ void readData(){
           fp3.push_back(fpt3);
         }
 
-        float fnpt1, fnpt2, fnpt3;
-        vector<float> fnp1;
-        vector<float> fnp2;
-        vector<float> fnp3;
-        fnp1.clear();
-        fnp2.clear();
-        fnp3.clear();
+        float fnptx, fnpty, fnptz;
+        vector<float> fnpx;
+        vector<float> fnpy;
+        vector<float> fnpz;
+        fnpx.clear();
+        fnpy.clear();
+        fnpz.clear();
         //read in surface normal points
         for(int i = 0; i < numfaces; i++){
           getline(myfile, line);
           istringstream iss7(line);
-          iss7 >> fnpt1 >> fnpt2 >> fnpt3;
-          fnpt1 = fnpt1;
-          fnpt2 = fnpt2;
-          fnpt3 = fnpt3;
-          fnp1.push_back(fnpt1);
-          fnp2.push_back(fnpt2);
-          fnp3.push_back(fnpt3);
+          iss7 >> fnptx >> fnpty >> fnptz;
+          //cout << "fnptx: " << fnptx << ", fnpty: " << fnpty << ", fnptz: " << fnptz << endl;
+          fnpx.push_back(fnptx);
+          fnpy.push_back(fnpty);
+          fnpz.push_back(fnptz);
         }
 
-        Poly * myPoly = new Poly(xs, ys, zs, lp1, lp2, fp1, fp2, fp3, fnp1, fnp2, fnp3); 
+        Poly * myPoly = new Poly(xs, ys, zs, lp1, lp2, fp1, fp2, fp3, fnpx, fnpy, fnpz); 
         allPoly.push_back(myPoly);
       }
     }
     myfile.close();
   }
+}
+
+//find normal of given vertex point
+//i = which poly; j = which point in that poly
+void phongLighting(int i, int j){
+  //vertex point
+  float px, py, pz;
+  px = allPoly[i]->getXPoint(j);
+  py = allPoly[i]->getYPoint(j);
+  pz = allPoly[i]->getZPoint(j);
+  cout << "px: " << px << ", py: " << py << ", pz: " << pz << endl;
+
+  //avg distance between light source and scene
+  float K;
+
+  // || f-p || 
+  //f = ViewPXYZ
+  //p = vertex point
+  float magfp;
+  magfp = sqrt(pow((ViewPX - px), 2) + pow((ViewPY - py), 2) + pow((ViewPZ - pz), 2));
+
+
+  //get vertex normal ->n
+  float vnx, vny, vnz;
+  vnx = allPoly[i]->getVertexNormalX(j);
+  vny = allPoly[i]->getVertexNormalY(j);
+  vnz = allPoly[i]->getVertexNormalZ(j);
+  float magvn = sqrt(pow(vnx, 2) + pow(vny, 2) + pow(vnz, 2));
+  cout << "vnx: " << vnx << ", vny: " << vny << ", vnz: " << vnz << endl;
+  vnx = vnx / magvn;
+  vny = vny / magvn;
+  vnz = vnz / magvn;
+  cout << "vnx: " << vnx << ", vny: " << vny << ", vnz: " << vnz << endl;
+
+  // kd*(->l dot* ->n)
+  //->l = LightPXYZ
+  //->n = vertex normal
+  float kdpart;
+  float ldotn = LightPX*vnx + LightPY*vny + LightPZ*vnz;
+  kdpart = kd*ldotn;
+
+  //get reflection normal ->r
+  //->l + 2(->n dot* ->l)*->n
+  float rx, ry, rz;
+  rx = LightPX + 2*(ldotn)*vnx;
+  ry = LightPY + 2*(ldotn)*vny;
+  rz = LightPZ + 2*(ldotn)*vnz;
+  float magr = sqrt(pow(rx, 2) + pow(ry, 2) + pow(rz, 2));
+  rx = rx / magr;
+  ry = ry / magr;
+  rz = rz / magr;
+
+
+  // ks*(->r dot* ->v)^n
+  //->r = reflection normal
+  //->v = ViewPXYZ
+  //n = PhongConst
+  float kspart;
+  float rdotv = rx*ViewPX + ry*ViewPY + rz*ViewPZ;
+  kspart = ks*pow(rdotv, PhongConst);
+
+
+  float IP;
+  IP = ka*IA + (IL/(magfp + K)) * (kdpart + kspart); 
 }
 
 
@@ -651,9 +725,19 @@ int main(int argc, char *argv[]){
 
   createMenu();     
 
-  for(int i = 0; i < (int)allPoly.size(); i++){
-    allPoly[i]->printData();
-  }
+  phongLighting(0,0);
+
+  //print poly data
+  // for(int i = 0; i < (int)allPoly.size(); i++){
+  //   for(int j = 0; j < allPoly[i].getNumPoints(); j++){
+  //     phongLighting(i, j);
+  //   }
+  // }
+
+  //print poly data
+  // for(int i = 0; i < (int)allPoly.size(); i++){
+  //   allPoly[i]->printData();
+  // }
 
   glutMainLoop();//main display loop, will display until terminate
   return 0;
