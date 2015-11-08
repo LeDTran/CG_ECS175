@@ -25,6 +25,8 @@ float ka, kd, ks;
 float IA, IL;
 //Phong constant
 float PhongConst;
+//average distance between scene and light source
+float C;
 
 void drawPix(float *Buffer, int x, int y, float red, float green, float blue){
   if(0 <= x && x <= 200 && 0 <= y && y <= 200){
@@ -602,6 +604,23 @@ void readData(){
   }
 }
 
+void calculateC(){
+  int numpoints = 0;
+  int netdistance = 0;
+  for(int i = 0; i < (int)allPoly.size(); i++){
+    for(int j = 0; j < allPoly[i]->getNumPoints(); j++){
+      float x, y, z;
+      x = allPoly[i]->getXPoint(j);
+      y = allPoly[i]->getYPoint(j);
+      z = allPoly[i]->getZPoint(j);
+      float magdist = sqrt(pow((LightPX - x), 2) + pow((LightPY - y), 2) + pow((LightPZ - z), 2));
+      netdistance = netdistance + magdist;
+      numpoints++;
+    }
+  }
+  C = netdistance/numpoints;
+}
+
 //find normal of given vertex point
 //i = which poly; j = which point in that poly
 void phongLighting(int i, int j){
@@ -613,7 +632,7 @@ void phongLighting(int i, int j){
   cout << "px: " << px << ", py: " << py << ", pz: " << pz << endl;
 
   //avg distance between light source and scene
-  float K;
+  calculateC();
 
   // || f-p || 
   //f = ViewPXYZ
@@ -661,9 +680,8 @@ void phongLighting(int i, int j){
   float rdotv = rx*ViewPX + ry*ViewPY + rz*ViewPZ;
   kspart = ks*pow(rdotv, PhongConst);
 
-
   float IP;
-  IP = ka*IA + (IL/(magfp + K)) * (kdpart + kspart); 
+  IP = ka*IA + (IL/(magfp + C)) * (kdpart + kspart); 
 }
 
 
@@ -729,7 +747,7 @@ int main(int argc, char *argv[]){
 
   //print poly data
   // for(int i = 0; i < (int)allPoly.size(); i++){
-  //   for(int j = 0; j < allPoly[i].getNumPoints(); j++){
+  //   for(int j = 0; j < allPoly[i]->getNumPoints(); j++){
   //     phongLighting(i, j);
   //   }
   // }
