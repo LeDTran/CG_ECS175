@@ -11,6 +11,10 @@ class Poly{
     vector<float> ypoints;
     vector<float> zpoints;
 
+    float smallestx;
+    float smallesty;
+    float smallestz;
+
     vector<int> linep1;
     vector<int> linep2;
 
@@ -37,6 +41,10 @@ class Poly{
     float getXPoint(int i);
     float getYPoint(int i);
     float getZPoint(int i);
+    void determineSmallest();
+    float getSmallestX();
+    float getSmallestY();
+    float getSmallestZ();
     float getNumPoints();
     int getLineP1(int i);
     int getLineP2(int i);

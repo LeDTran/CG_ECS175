@@ -19,8 +19,8 @@ bool isAnimating;
 float LightPX, LightPY, LightPZ;
 //viewing position xyz
 float ViewPX, ViewPY, ViewPZ;
-//ambient, diffuse, specular reflection coefficient 
-float ka, kd, ks;
+//ambient, diffuse, specular reflection coefficient: [RGB]
+float KA[3], KD[3], KS[3];
 //ambient light intensity, light source intensity
 float IA, IL;
 //Phong constant
@@ -274,7 +274,7 @@ void drawLineDDA(float *Buffer, float * fp1, float *fp2, float r, float g, float
   else if(fabs(dy/dx) > 1 || fabs(dx) == 0){
     int x0 = p1[0];
     y = p1[1];
-    for(int i = 0; i <= abs(dy); i++){
+    for(int i = 0; i <= fabs(dy); i++){
       if(dy > 1){
         x = x0 + (dx/dy)*i;
       }
@@ -294,7 +294,10 @@ void drawLineDDA(float *Buffer, float * fp1, float *fp2, float r, float g, float
   }  
 }
 
-void drawPolygon(int p){
+//int plane: 0 = xy, 1 = xz, 2 = yz
+void drawPolygon(int p, int plane){
+  //need sort faces of poly
+
   for(int i = 0; i < allPoly[p]->getNumLineP(); i++){
     int linepoint1 = allPoly[p]->getLineP1(i);
     int linepoint2 = allPoly[p]->getLineP2(i);
@@ -315,25 +318,29 @@ void drawPolygon(int p){
     float point2[2];
 
     //plot XY
-    point1[0] = getRatio(lpoint1[0], 'x');
-    point1[1] = getRatio(lpoint1[1], 'y');
-    point2[0] = getRatio(lpoint2[0], 'x');
-    point2[1] = getRatio(lpoint2[1], 'y');
-    drawLineDDA(BufferXY, point1, point2, 1, 0, 0);
-
+    if(plane == 0){
+      point1[0] = getRatio(lpoint1[0], 'x');
+      point1[1] = getRatio(lpoint1[1], 'y');
+      point2[0] = getRatio(lpoint2[0], 'x');
+      point2[1] = getRatio(lpoint2[1], 'y');
+      drawLineDDA(BufferXY, point1, point2, 1, 0, 0);
+    }
     //plot XZ
-    point1[0] = getRatio(lpoint1[0], 'x');
-    point1[1] = getRatio(lpoint1[2], 'z');
-    point2[0] = getRatio(lpoint2[0], 'x');
-    point2[1] = getRatio(lpoint2[2], 'z');   
-    drawLineDDA(BufferXZ, point1, point2, 0, 1, 0);
-
+    else if(plane == 1){
+      point1[0] = getRatio(lpoint1[0], 'x');
+      point1[1] = getRatio(lpoint1[2], 'z');
+      point2[0] = getRatio(lpoint2[0], 'x');
+      point2[1] = getRatio(lpoint2[2], 'z');   
+      drawLineDDA(BufferXZ, point1, point2, 0, 1, 0);
+    }
     //plot YZ
-    point1[0] = getRatio(lpoint1[1], 'y');
-    point1[1] = getRatio(lpoint1[2], 'z');
-    point2[0] = getRatio(lpoint2[1], 'y');
-    point2[1] = getRatio(lpoint2[2], 'z');
-    drawLineDDA(BufferYZ, point1, point2, 0, 0, 1);
+    else if(plane == 2){
+      point1[0] = getRatio(lpoint1[1], 'y');
+      point1[1] = getRatio(lpoint1[2], 'z');
+      point2[0] = getRatio(lpoint2[1], 'y');
+      point2[1] = getRatio(lpoint2[2], 'z');
+      drawLineDDA(BufferYZ, point1, point2, 0, 0, 1);
+    }
   }
 }
 
@@ -410,7 +417,47 @@ void rotatePolygon(int p, float x1, float y1, float z1, float x2, float y2, floa
 
     allPoly[p]->translatePoly(x1, y1, z1);
   }
+}
 
+//int plane: 0 = xy, 1 = xz, 2 = yz
+void reSortPolys(int plane){
+  int counter = 0;
+  //xy display view
+  //sort by z points
+  if(plane == 0){
+    while(counter != (int)allPoly.size()){
+      for(int i = 0; i < (int)allPoly.size()-1; i++){
+        if(allPoly[i]->getZPoint(i) > allPoly[i+1]->getZPoint(i+1)){
+          iter_swap(allPoly.begin()+i, allPoly.begin()+(i+1));
+        }
+      }
+      counter++;
+    }
+  }
+  //xz display
+  //sort by y points
+  else if(plane == 1){
+    while(counter != (int)allPoly.size()){
+      for(int i = 0; i < (int)allPoly.size()-1; i++){
+        if(allPoly[i]->getYPoint(i) > allPoly[i+1]->getYPoint(i+1)){
+          iter_swap(allPoly.begin()+i, allPoly.begin()+(i+1));
+        }
+      }
+      counter++;
+    }
+  }
+  //yz display
+  //sort by x points
+  else if(plane == 2){
+    while(counter != (int)allPoly.size()){
+      for(int i = 0; i < (int)allPoly.size()-1; i++){
+        if(allPoly[i]->getSmallestX() > allPoly[i+1]->getSmallestX()){
+          iter_swap(allPoly.begin()+i, allPoly.begin()+(i+1));
+        }
+      }
+      counter++;
+    }
+  }
 }
 
 //used to redraw scene, with updated lines and polygons
@@ -426,7 +473,23 @@ void drawScene(){
 
   //draw all polygons
   for(int i = 0; i < (int) allPoly.size(); i++){
-    drawPolygon(i);
+    // //sort by z 
+    // reSortPolys(0);
+    // //draw in xy
+    // drawPolygon(i, 0);
+
+    // //sort by y
+    // reSortPolys(1);
+    // //draw in xz
+    // drawPolygon(i, 1);
+    // allPoly[i]->printData();
+
+
+    //sort by x
+    reSortPolys(2);
+    //draw in yz
+    drawPolygon(i, 2);
+    allPoly[i]->printData();
   }
 
   //draw borders  
@@ -623,7 +686,7 @@ void calculateC(){
 
 //find normal of given vertex point
 //i = which poly; j = which point in that poly
-void phongLighting(int i, int j){
+void phongLighting(int i, int j, float ka, float kd, float ks){
   //vertex point
   float px, py, pz;
   px = allPoly[i]->getXPoint(j);
@@ -743,7 +806,12 @@ int main(int argc, char *argv[]){
 
   createMenu();     
 
-  phongLighting(0,0);
+  // //red
+  // phongLighting(0,0, KA[0], KD[0], KS[0]);
+  // //green
+  // phongLighting(0,0, KA[1], KD[1], KS[1]);
+  // //blue
+  // phongLighting(0,0, KA[2], KD[2], KS[2]);
 
   //print poly data
   // for(int i = 0; i < (int)allPoly.size(); i++){
@@ -756,6 +824,7 @@ int main(int argc, char *argv[]){
   // for(int i = 0; i < (int)allPoly.size(); i++){
   //   allPoly[i]->printData();
   // }
+
 
   glutMainLoop();//main display loop, will display until terminate
   return 0;

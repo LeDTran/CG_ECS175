@@ -4,6 +4,7 @@
 #include <sstream>
 #include <math.h>
 #include <vector>
+#include <algorithm>    //iter_swap
 #include "Poly.h"
 #include "UI.h"
 using namespace std;
@@ -30,10 +31,11 @@ float getZMax();
 void updateMinMax();
 float getRatio(float coord, char axis);
 void drawLineDDA(float *Buffer, float *fp1, float *fp2, float r, float g, float b);
-void drawPolygon(int p);
+void drawPolygon(int p, int plane);
 void translatePolygon(int p, float dx, float dy, float dz);
 void scalePolygon(int p, float sx, float sy, float sz);
 void rotatePolygon(int p, float x1, float y1, float z1, float x2, float y2, float z2, float pdeg);
+void reSortPolys(int plane);
 void drawScene();
 void updateRotate(int i);
 void startAnimation();
