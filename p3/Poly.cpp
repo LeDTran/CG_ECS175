@@ -4,6 +4,7 @@ Poly::Poly(){
 	//ctr
 }
 
+//Polyhedron
 Poly::Poly(vector<float> xs, vector<float> ys, vector<float> zs, 
             vector<int> lp1, vector<int> lp2, 
             vector<int> fp1, vector<int> fp2, vector<int> fp3,
@@ -17,7 +18,7 @@ Poly::Poly(vector<float> xs, vector<float> ys, vector<float> zs,
   linep1 = lp1;
   linep2 = lp2;
 
-  //*triangular* faces of poly
+  //*triangular* faces of poly point1, point2, point3
   facep1 = fp1;
   facep2 = fp2;
   facep3 = fp3;
@@ -29,9 +30,10 @@ Poly::Poly(vector<float> xs, vector<float> ys, vector<float> zs,
 
   //get smallest x, y, z, for later poly sorting
   determineSmallest();
-  
+
   //israsterized = rasterizationstate;
 }
+
 
 void Poly::printData(){
   cout << "xyz" << endl;
@@ -323,4 +325,56 @@ float Poly::getVertexNormalZ(int j){
   }
   //cout << "normz: " << normz << endl;
   return normz/numadjfaces;
+}
+
+//int plane: 0 = xy, 1 = xz, 2 = yz
+void Poly::reSortFaces(int plane){
+  int counter = 0;
+  //xy display view
+  //sort by z points
+  if(plane == 0){
+    while(counter != (int)facep1.size()){
+      for(int i = 0; i < (int)facep1.size()-1; i++){
+        facep1[i] 
+        facep2[i]
+        facep3[i]
+
+        zpoints[facep1[i]]
+        zpoints[facep2[i]]
+        zpoints[facep3[i]]
+        
+        zpoints[facep1[i+1]]
+        zpoints[facep2[i+1]]
+        zpoints[facep3[i+1]]
+
+
+      } 
+    }
+  }
+
+
+  //xz display
+  //sort by y points
+  else if(plane == 1){
+    while(counter != (int)allPoly.size()){
+      for(int i = 0; i < (int)allPoly.size()-1; i++){
+        if(allPoly[i]->getYPoint(i) > allPoly[i+1]->getYPoint(i+1)){
+          iter_swap(allPoly.begin()+i, allPoly.begin()+(i+1));
+        }
+      }
+      counter++;
+    }
+  }
+  //yz display
+  //sort by x points
+  else if(plane == 2){
+    while(counter != (int)allPoly.size()){
+      for(int i = 0; i < (int)allPoly.size()-1; i++){
+        if(allPoly[i]->getSmallestX() > allPoly[i+1]->getSmallestX()){
+          iter_swap(allPoly.begin()+i, allPoly.begin()+(i+1));
+        }
+      }
+      counter++;
+    }
+  }
 }

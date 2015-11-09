@@ -294,9 +294,14 @@ void drawLineDDA(float *Buffer, float * fp1, float *fp2, float r, float g, float
   }  
 }
 
+void reSortFaces(){
+
+}
+
 //int plane: 0 = xy, 1 = xz, 2 = yz
 void drawPolygon(int p, int plane){
   //need sort faces of poly
+  allPoly[p]->reSortFaces(plane);
 
   for(int i = 0; i < allPoly[p]->getNumLineP(); i++){
     int linepoint1 = allPoly[p]->getLineP1(i);
@@ -473,23 +478,23 @@ void drawScene(){
 
   //draw all polygons
   for(int i = 0; i < (int) allPoly.size(); i++){
-    // //sort by z 
-    // reSortPolys(0);
-    // //draw in xy
-    // drawPolygon(i, 0);
+    //sort by z 
+    reSortPolys(0);
+    //draw in xy
+    drawPolygon(i, 0);
 
-    // //sort by y
-    // reSortPolys(1);
-    // //draw in xz
-    // drawPolygon(i, 1);
-    // allPoly[i]->printData();
+    //sort by y
+    reSortPolys(1);
+    //draw in xz
+    drawPolygon(i, 1);
+    //allPoly[i]->printData();
 
 
     //sort by x
     reSortPolys(2);
     //draw in yz
     drawPolygon(i, 2);
-    allPoly[i]->printData();
+    //allPoly[i]->printData();
   }
 
   //draw borders  
