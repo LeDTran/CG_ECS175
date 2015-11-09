@@ -1,0 +1,12 @@
+AFTER READ IN DATA
+-need to calculate Ip for each vertex in each poly and store them
+
+SORTING FACES
+-sort by poly first
+-then member function reorder facep1/2/3 depending on window view
+	-make sure reorder face normals accordingly
+-reset poly's faces vector
+-create new faces with reordered facep1/2/3
+	-when push back on faces vector, faces will be same order as facep1/2/3
+	-make sure to pass in vertex phong model intensities
+-now faces will be in order for rasturization

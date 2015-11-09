@@ -20,7 +20,7 @@ float LightPX, LightPY, LightPZ;
 //viewing position xyz
 float ViewPX, ViewPY, ViewPZ;
 //ambient, diffuse, specular reflection coefficient: [RGB]
-float KA[3], KD[3], KS[3];
+float Ka[3], Kd[3], Ks[3];
 //ambient light intensity, light source intensity
 float IA, IL;
 //Phong constant
@@ -301,7 +301,7 @@ void reSortFaces(){
 //int plane: 0 = xy, 1 = xz, 2 = yz
 void drawPolygon(int p, int plane){
   //need sort faces of poly
-  allPoly[p]->reSortFaces(plane);
+  //allPoly[p]->reSortFaces(plane);
 
   for(int i = 0; i < allPoly[p]->getNumLineP(); i++){
     int linepoint1 = allPoly[p]->getLineP1(i);
@@ -476,26 +476,33 @@ void drawScene(){
 
   updateMinMax();
 
-  //draw all polygons
+  //sort by z 
+  reSortPolys(0);
+  //draw all polygons in xy
   for(int i = 0; i < (int) allPoly.size(); i++){
-    //sort by z 
-    reSortPolys(0);
     //draw in xy
     drawPolygon(i, 0);
+    //allPoly[i]->printData();
+  }
 
-    //sort by y
-    reSortPolys(1);
+  //sort by y
+  reSortPolys(1);
+  //draw all polygons in xz
+  for(int i = 0; i < (int) allPoly.size(); i++){
     //draw in xz
     drawPolygon(i, 1);
     //allPoly[i]->printData();
+  }
 
-
-    //sort by x
-    reSortPolys(2);
+  //sort by x
+  reSortPolys(2);
+  //draw all polygons in yz
+  for(int i = 0; i < (int) allPoly.size(); i++){
     //draw in yz
     drawPolygon(i, 2);
     //allPoly[i]->printData();
   }
+
 
   //draw borders  
   float point1[2];
@@ -691,7 +698,7 @@ void calculateC(){
 
 //find normal of given vertex point
 //i = which poly; j = which point in that poly
-void phongLighting(int i, int j, float ka, float kd, float ks){
+float phongLighting(int i, int j, float ka, float kd, float ks){
   //vertex point
   float px, py, pz;
   px = allPoly[i]->getXPoint(j);
@@ -750,6 +757,8 @@ void phongLighting(int i, int j, float ka, float kd, float ks){
 
   float IP;
   IP = ka*IA + (IL/(magfp + C)) * (kdpart + kspart); 
+
+  return IP;
 }
 
 
@@ -809,14 +818,16 @@ int main(int argc, char *argv[]){
 
   drawScene();
 
-  createMenu();     
+  createMenu();    
 
+
+  //phong model for given vertex of polygon
   // //red
-  // phongLighting(0,0, KA[0], KD[0], KS[0]);
+  // float ipr = phongLighting(0,0, Ka[0], Kd[0], Ks[0]);
   // //green
-  // phongLighting(0,0, KA[1], KD[1], KS[1]);
+  // float ipg = phongLighting(0,0, Ka[1], Kd[1], Ks[1]);
   // //blue
-  // phongLighting(0,0, KA[2], KD[2], KS[2]);
+  // float ipb = phongLighting(0,0, Ka[2], Kd[2], Ks[2]);
 
   //print poly data
   // for(int i = 0; i < (int)allPoly.size(); i++){

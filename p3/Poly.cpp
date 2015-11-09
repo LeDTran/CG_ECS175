@@ -329,52 +329,61 @@ float Poly::getVertexNormalZ(int j){
 
 //int plane: 0 = xy, 1 = xz, 2 = yz
 void Poly::reSortFaces(int plane){
-  int counter = 0;
-  //xy display view
-  //sort by z points
-  if(plane == 0){
-    while(counter != (int)facep1.size()){
-      for(int i = 0; i < (int)facep1.size()-1; i++){
-        facep1[i] 
-        facep2[i]
-        facep3[i]
+  // int counter = 0;
+  // //xy display view
+  // //sort by z points
+  // if(plane == 0){
+  //   while(counter != (int)facep1.size()){
+  //     for(int i = 0; i < (int)facep1.size()-1; i++){
+  //       facep1[i] 
+  //       facep2[i]
+  //       facep3[i]
 
-        zpoints[facep1[i]]
-        zpoints[facep2[i]]
-        zpoints[facep3[i]]
+  //       zpoints[facep1[i]]
+  //       zpoints[facep2[i]]
+  //       zpoints[facep3[i]]
         
-        zpoints[facep1[i+1]]
-        zpoints[facep2[i+1]]
-        zpoints[facep3[i+1]]
+  //       zpoints[facep1[i+1]]
+  //       zpoints[facep2[i+1]]
+  //       zpoints[facep3[i+1]]
 
 
-      } 
-    }
-  }
+  //     } 
+  //   }
+  // }
 
 
-  //xz display
-  //sort by y points
-  else if(plane == 1){
-    while(counter != (int)allPoly.size()){
-      for(int i = 0; i < (int)allPoly.size()-1; i++){
-        if(allPoly[i]->getYPoint(i) > allPoly[i+1]->getYPoint(i+1)){
-          iter_swap(allPoly.begin()+i, allPoly.begin()+(i+1));
-        }
-      }
-      counter++;
-    }
-  }
-  //yz display
-  //sort by x points
-  else if(plane == 2){
-    while(counter != (int)allPoly.size()){
-      for(int i = 0; i < (int)allPoly.size()-1; i++){
-        if(allPoly[i]->getSmallestX() > allPoly[i+1]->getSmallestX()){
-          iter_swap(allPoly.begin()+i, allPoly.begin()+(i+1));
-        }
-      }
-      counter++;
-    }
-  }
+  // //xz display
+  // //sort by y points
+  // else if(plane == 1){
+  //   while(counter != (int)allPoly.size()){
+  //     for(int i = 0; i < (int)allPoly.size()-1; i++){
+  //       if(allPoly[i]->getYPoint(i) > allPoly[i+1]->getYPoint(i+1)){
+  //         iter_swap(allPoly.begin()+i, allPoly.begin()+(i+1));
+  //       }
+  //     }
+  //     counter++;
+  //   }
+  // }
+  // //yz display
+  // //sort by x points
+  // else if(plane == 2){
+  //   while(counter != (int)allPoly.size()){
+  //     for(int i = 0; i < (int)allPoly.size()-1; i++){
+  //       if(allPoly[i]->getSmallestX() > allPoly[i+1]->getSmallestX()){
+  //         iter_swap(allPoly.begin()+i, allPoly.begin()+(i+1));
+  //       }
+  //     }
+  //     counter++;
+  //   }
+  // }
+}
+
+void Poly::setIp(vector<float> ipr, vector<float>ipg, vector<float> ipb){
+  IpR.clear();
+  IpG.clear();
+  IpB.clear();
+  IpR = ipr;
+  IpG = ipg;
+  IpB = ipb;
 }

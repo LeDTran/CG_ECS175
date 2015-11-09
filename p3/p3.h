@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>    //iter_swap
 #include "Poly.h"
+#include "Face.h"
 #include "UI.h"
 using namespace std;
 
@@ -41,4 +42,4 @@ void updateRotate(int i);
 void startAnimation();
 void readData();
 void calculateC();
-void phongLighting(int i, int j);
+float phongLighting(int i, int j);

@@ -15,6 +15,10 @@ class Poly{
     float smallesty;
     float smallestz;
 
+    vector<float> IpR;
+    vector<float> IpG;
+    vector<float> IpB;
+
     vector<int> linep1;
     vector<int> linep2;
 
@@ -64,6 +68,8 @@ class Poly{
     float getVertexNormalX(int j);
     float getVertexNormalY(int j);
     float getVertexNormalZ(int j);
+    void reSortFaces(int plane);
+    void setIp(vector<float> ipr, vector<float>ipg, vector<float> ipb);
 };
 
 #endif

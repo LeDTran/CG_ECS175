@@ -5,6 +5,7 @@
 #include <iostream>
 #include "p3.h"
 #include "Poly.h"
+#include "Face.h"
 using namespace std;
 
 void UIDrawPolygon();
