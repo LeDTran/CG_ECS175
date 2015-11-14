@@ -4,10 +4,14 @@ Face::Face(){
 	//ctr
 }
 
-Face::Face(vector<int> xs, vector<int> ys, bool rasterizationstate){
-	xpoints = xs;
-	ypoints = ys;
-  israsterized = rasterizationstate;
+Face::Face(vector<float> as, vector<float> bs, 
+            vector<float> ipr, vector<float> ipg, vector<float> ipb){
+	apoints = as;
+	bpoints = bs;
+
+  IpR = ipr;
+  IpG = ipg;
+  IpB = ipb;
 }
 
 int Face::getXPoint(int i){

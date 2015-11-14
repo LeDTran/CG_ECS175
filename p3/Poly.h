@@ -3,33 +3,44 @@
 #include <vector>
 #include <math.h>
 #include <iostream>
+#include "Face.h"
 using namespace std;
 
 class Poly{
   private:
+    //all points of poly
     vector<float> xpoints;
     vector<float> ypoints;
     vector<float> zpoints;
 
+    //used for poly sorting
     float smallestx;
     float smallesty;
     float smallestz;
 
+    //intensity corresponds to repective point index
     vector<float> IpR;
     vector<float> IpG;
     vector<float> IpB;
 
+    //edges of poly
     vector<int> linep1;
     vector<int> linep2;
 
+    //points of faces of poly
     vector<int> facep1; 
     vector<int> facep2; 
     vector<int> facep3;
             
+    //normals for corresponding faces        
     vector<float> fnormx; 
     vector<float> fnormy; 
     vector<float> fnormz;
- 
+    
+    //vector of faces of poly
+    vector<Face *> polyFaces;
+
+
     vector<int> edgexpoints;
     vector<int> edgeypoints;
     //bool israsterized;
@@ -68,8 +79,11 @@ class Poly{
     float getVertexNormalX(int j);
     float getVertexNormalY(int j);
     float getVertexNormalZ(int j);
+    int getNumFaces();
     void reSortFaces(int plane);
     void setIp(vector<float> ipr, vector<float>ipg, vector<float> ipb);
+    void reMakeFaces(int plane);
+    Face* getFace(int i);
 };
 
 #endif

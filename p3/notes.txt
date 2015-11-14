@@ -3,7 +3,8 @@ AFTER READ IN DATA
 
 SORTING FACES
 -sort by poly first
--then member function reorder facep1/2/3 depending on window view
+-then member function reorder facep1/2/3 depending on window view\
+	-reorder by AVERAGED facep1/2/3
 	-make sure reorder face normals accordingly
 -reset poly's faces vector
 -create new faces with reordered facep1/2/3

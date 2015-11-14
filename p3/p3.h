@@ -37,9 +37,13 @@ void translatePolygon(int p, float dx, float dy, float dz);
 void scalePolygon(int p, float sx, float sy, float sz);
 void rotatePolygon(int p, float x1, float y1, float z1, float x2, float y2, float z2, float pdeg);
 void reSortPolys(int plane);
-void drawScene();
 void updateRotate(int i);
 void startAnimation();
 void readData();
 void calculateC();
+void setValues();
 float phongLighting(int i, int j);
+void setIpValues();
+void drawScene();
+
+

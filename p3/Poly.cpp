@@ -9,20 +9,22 @@ Poly::Poly(vector<float> xs, vector<float> ys, vector<float> zs,
             vector<int> lp1, vector<int> lp2, 
             vector<int> fp1, vector<int> fp2, vector<int> fp3,
             vector<float> fnx, vector<float> fny, vector<float> fnz){
+  
+
+  //THESE ARE NOT TOUCHED ONCE FED IN
   //all points of poly
 	xpoints = xs;
 	ypoints = ys;
   zpoints = zs;
-
   //edges of poly 
   linep1 = lp1;
   linep2 = lp2;
 
+  //THESE ARE SUBJECT TO SORTING LATER
   //*triangular* faces of poly point1, point2, point3
   facep1 = fp1;
   facep2 = fp2;
   facep3 = fp3;
-
   //normal for each surface
   fnormx = fnx;
   fnormy = fny;
@@ -36,26 +38,35 @@ Poly::Poly(vector<float> xs, vector<float> ys, vector<float> zs,
 
 
 void Poly::printData(){
-  cout << "xyz" << endl;
-  for(int i = 0; i < (int)xpoints.size(); i++){
-    cout << xpoints[i] << " " << ypoints[i] << " " << zpoints[i] << endl;
-  }
+  // cout << "xyz" << endl;
+  // for(int i = 0; i < (int)xpoints.size(); i++){
+  //   cout << xpoints[i] << " " << ypoints[i] << " " << zpoints[i] << endl;
+  // }
 
-  cout << "line points" << endl;
-  for(int i = 0; i < (int)linep1.size(); i++){
-    cout << linep1[i] + 1 << " " << linep2[i] + 1 << endl;
-  }
+  // cout << "line points" << endl;
+  // for(int i = 0; i < (int)linep1.size(); i++){
+  //   cout << linep1[i] + 1 << " " << linep2[i] + 1 << endl;
+  // }
 
-  cout << "face points" << endl;
-  for(int i = 0; i < (int)facep1.size(); i++){
-    cout << facep1[i] + 1 << " " << facep2[i] + 1 << " " << facep3[i] + 1 << endl;
-  }
+  // cout << "face points" << endl;
+  // for(int i = 0; i < (int)facep1.size(); i++){
+  //   cout << facep1[i] + 1 << " " << facep2[i] + 1 << " " << facep3[i] + 1 << endl;
+  // }
 
-  cout << "normal points" << endl;
-  for(int i = 0; i < (int)facep1.size(); i++){
-    cout << fnormx[i] << " " << fnormy[i] << " " << fnormz[i] << " " << endl;
-  }
+  // cout << "normal points" << endl;
+  // for(int i = 0; i < (int)facep1.size(); i++){
+  //   cout << fnormx[i] << " " << fnormy[i] << " " << fnormz[i] << " " << endl;
+  // }
+
+  // cout << "Ip" << endl;
+  // for(int i = 0; i < (int)IpR.size(); i++){
+  //       cout << IpR[i] << " " << IpG[i] << " " << IpB[i] << " " << endl;
+  // }
+
   cout << "------------------------------------" << endl;
+
+
+
 }
 
 float Poly::getXPoint(int i){
@@ -327,56 +338,85 @@ float Poly::getVertexNormalZ(int j){
   return normz/numadjfaces;
 }
 
+int Poly::getNumFaces(){
+  return facep1.size();
+}
+
 //int plane: 0 = xy, 1 = xz, 2 = yz
 void Poly::reSortFaces(int plane){
-  // int counter = 0;
-  // //xy display view
-  // //sort by z points
-  // if(plane == 0){
-  //   while(counter != (int)facep1.size()){
-  //     for(int i = 0; i < (int)facep1.size()-1; i++){
-  //       facep1[i] 
-  //       facep2[i]
-  //       facep3[i]
+  int counter = 0;
+  //xy display view
+  //sort by z points
+  if(plane == 0){
+    while(counter < (int)facep1.size()){
+      for(int i = 0; i < (int)facep1.size()-1; i++){
+        //compare avg x values of face
+        float avg1, avg2;
+        avg1 = (zpoints[facep1[i]] + zpoints[facep2[i]] + zpoints[facep3[i]]) / 3;
+        avg2 = (zpoints[facep1[i+1]] + zpoints[facep2[i+1]] + zpoints[facep3[i+1]]) / 3;
+        if(avg1 > avg2){
+          //swap faces by avg depth
+          iter_swap(facep1.begin()+i, facep1.begin()+(i+1));
+          iter_swap(facep2.begin()+i, facep2.begin()+(i+1));
+          iter_swap(facep3.begin()+i, facep3.begin()+(i+1));
 
-  //       zpoints[facep1[i]]
-  //       zpoints[facep2[i]]
-  //       zpoints[facep3[i]]
-        
-  //       zpoints[facep1[i+1]]
-  //       zpoints[facep2[i+1]]
-  //       zpoints[facep3[i+1]]
+          //swap face normals accordingly
+          iter_swap(fnormx.begin()+i, fnormx.begin()+(i+1));
+          iter_swap(fnormy.begin()+i, fnormy.begin()+(i+1));
+          iter_swap(fnormz.begin()+i, fnormz.begin()+(i+1));
+        }
+      }
+      counter++; 
+    }
+  }
+  //xz display
+  //sort by y points
+  else if(plane == 1){
+    while(counter < (int)facep1.size()){
+      for(int i = 0; i < (int)facep1.size()-1; i++){
+        //compare avg y values of face
+        float avg1, avg2;
+        avg1 = (ypoints[facep1[i]] + ypoints[facep2[i]] + ypoints[facep3[i]]) / 3;
+        avg2 = (ypoints[facep1[i+1]] + ypoints[facep2[i+1]] + ypoints[facep3[i+1]]) / 3;
+        if(avg1 > avg2){
+          //swap faces by avg depth
+          iter_swap(facep1.begin()+i, facep1.begin()+(i+1));
+          iter_swap(facep2.begin()+i, facep2.begin()+(i+1));
+          iter_swap(facep3.begin()+i, facep3.begin()+(i+1));
 
+          //swap face normals accordingly
+          iter_swap(fnormx.begin()+i, fnormx.begin()+(i+1));
+          iter_swap(fnormy.begin()+i, fnormy.begin()+(i+1));
+          iter_swap(fnormz.begin()+i, fnormz.begin()+(i+1));
+        }
+      }
+      counter++; 
+    }
+  }
+  //yz display
+  //sort by x points
+  else if(plane == 2){
+    while(counter < (int)facep1.size()){
+      for(int i = 0; i < (int)facep1.size()-1; i++){
+        //compare avg x values of face
+        float avg1, avg2;
+        avg1 = (xpoints[facep1[i]] + xpoints[facep2[i]] + xpoints[facep3[i]]) / 3;
+        avg2 = (xpoints[facep1[i+1]] + xpoints[facep2[i+1]] + xpoints[facep3[i+1]]) / 3;
+        if(avg1 > avg2){
+          //swap faces by avg depth
+          iter_swap(facep1.begin()+i, facep1.begin()+(i+1));
+          iter_swap(facep2.begin()+i, facep2.begin()+(i+1));
+          iter_swap(facep3.begin()+i, facep3.begin()+(i+1));
 
-  //     } 
-  //   }
-  // }
-
-
-  // //xz display
-  // //sort by y points
-  // else if(plane == 1){
-  //   while(counter != (int)allPoly.size()){
-  //     for(int i = 0; i < (int)allPoly.size()-1; i++){
-  //       if(allPoly[i]->getYPoint(i) > allPoly[i+1]->getYPoint(i+1)){
-  //         iter_swap(allPoly.begin()+i, allPoly.begin()+(i+1));
-  //       }
-  //     }
-  //     counter++;
-  //   }
-  // }
-  // //yz display
-  // //sort by x points
-  // else if(plane == 2){
-  //   while(counter != (int)allPoly.size()){
-  //     for(int i = 0; i < (int)allPoly.size()-1; i++){
-  //       if(allPoly[i]->getSmallestX() > allPoly[i+1]->getSmallestX()){
-  //         iter_swap(allPoly.begin()+i, allPoly.begin()+(i+1));
-  //       }
-  //     }
-  //     counter++;
-  //   }
-  // }
+          //swap face normals accordingly
+          iter_swap(fnormx.begin()+i, fnormx.begin()+(i+1));
+          iter_swap(fnormy.begin()+i, fnormy.begin()+(i+1));
+          iter_swap(fnormz.begin()+i, fnormz.begin()+(i+1));
+        }
+      }
+      counter++; 
+    }
+  }
 }
 
 void Poly::setIp(vector<float> ipr, vector<float>ipg, vector<float> ipb){
@@ -386,4 +426,53 @@ void Poly::setIp(vector<float> ipr, vector<float>ipg, vector<float> ipb){
   IpR = ipr;
   IpG = ipg;
   IpB = ipb;
+}
+
+//int plane: 0=xy, 1=xz, 2=yz
+void Poly::reMakeFaces(int plane){
+  cout << "MAKING FACES" << endl;
+  polyFaces.clear();
+  //need pass in ab points, face p1, point intensities
+  if(plane == 0){
+    //need to load in face points in terms of xy
+      vector<float> xs;
+      vector<float> ys;
+
+      vector<float> ipr;
+      vector<float> ipg;
+      vector<float> ipb;
+
+    for(int i = 0; i < (int)facep1.size(); i++){
+      xs.clear();
+      ys.clear();
+      ipr.clear();
+      ipg.clear();
+      ipb.clear();
+
+      //load in points of each face
+      xs.push_back(xpoints[facep1[i]]);
+      ys.push_back(ypoints[facep1[i]]);
+      xs.push_back(xpoints[facep2[i]]);
+      ys.push_back(ypoints[facep2[i]]);
+      xs.push_back(xpoints[facep3[i]]);
+      ys.push_back(ypoints[facep3[i]]);
+
+      //load in intensity values of face points
+      ipr.push_back(IpR[facep1[i]]);
+      ipg.push_back(IpG[facep1[i]]);
+      ipb.push_back(IpB[facep1[i]]);
+
+
+      Face * myFace = new Face(xs, ys, ipr, ipg, ipb); 
+      polyFaces.push_back(myFace);
+    }
+  }
+  else if (plane == 1){
+  }
+  else if (plane == 2){
+  }
+}
+
+Face* Poly::getFace(int i){
+    return polyFaces[i];
 }

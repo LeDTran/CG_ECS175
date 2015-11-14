@@ -20,8 +20,10 @@ float LightPX, LightPY, LightPZ;
 //viewing position xyz
 float ViewPX, ViewPY, ViewPZ;
 //ambient, diffuse, specular reflection coefficient: [RGB]
+//range [0, 1]
 float Ka[3], Kd[3], Ks[3];
 //ambient light intensity, light source intensity
+//range [0,1]
 float IA, IL;
 //Phong constant
 float PhongConst;
@@ -29,8 +31,8 @@ float PhongConst;
 float C;
 
 void drawPix(float *Buffer, int x, int y, float red, float green, float blue){
-  if(0 <= x && x <= 200 && 0 <= y && y <= 200){
-    int pixnum = x + y*200;
+  if(0 <= x && x <= 300 && 0 <= y && y <= 300){
+    int pixnum = x + y*300;
     //R
     Buffer[0 + pixnum*3] = red;
     //G
@@ -48,7 +50,7 @@ void display()
   glLoadIdentity();
 
   //draws pixel on screen, width and height must match pixel buffer dimension
-  glDrawPixels(200, 200, GL_RGB, GL_FLOAT, PixelBuffer);
+  glDrawPixels(300, 300, GL_RGB, GL_FLOAT, PixelBuffer);
 
   //window refresh
   //glEnd();
@@ -60,7 +62,7 @@ void display1()
 {
   glClear(GL_COLOR_BUFFER_BIT);
 
-  glDrawPixels(200, 200, GL_RGB, GL_FLOAT, BufferXY);
+  glDrawPixels(300, 300, GL_RGB, GL_FLOAT, BufferXY);
   glFlush();
 }
 
@@ -68,7 +70,7 @@ void display2()
 {
   glClear(GL_COLOR_BUFFER_BIT);
 
-  glDrawPixels(200, 200, GL_RGB, GL_FLOAT, BufferXZ);
+  glDrawPixels(300, 300, GL_RGB, GL_FLOAT, BufferXZ);
   glFlush();
 }
 
@@ -76,7 +78,7 @@ void display3()
 {
   glClear(GL_COLOR_BUFFER_BIT);
 
-  glDrawPixels(200, 200, GL_RGB, GL_FLOAT, BufferYZ);
+  glDrawPixels(300, 300, GL_RGB, GL_FLOAT, BufferYZ);
   glFlush();
 }
 
@@ -215,17 +217,17 @@ float getRatio(float coord, char axis){
   float ratio, newcoord;
   if(axis == 'x'){
     ratio = (coord - XMIN) / (MASTERMAX - MASTERMIN);
-    newcoord = 199*ratio;
+    newcoord = 299*ratio;
     return newcoord;
   }
   if(axis == 'y'){
     ratio = (coord - YMIN) / (MASTERMAX - MASTERMIN);
-    newcoord = 199*ratio;
+    newcoord = 299*ratio;
     return newcoord;
   }
   if(axis == 'z'){
     ratio = (coord - ZMIN) / (MASTERMAX - MASTERMIN);
-    newcoord = 199*ratio;
+    newcoord = 299*ratio;
     return newcoord;
   }
   return coord;
@@ -292,10 +294,6 @@ void drawLineDDA(float *Buffer, float * fp1, float *fp2, float r, float g, float
       }
     }
   }  
-}
-
-void reSortFaces(){
-
 }
 
 //int plane: 0 = xy, 1 = xz, 2 = yz
@@ -465,70 +463,7 @@ void reSortPolys(int plane){
   }
 }
 
-//used to redraw scene, with updated lines and polygons
-void drawScene(){
-  //clear window
-  for (int i = 0; i < 200 * 200 * 3; i++){
-    BufferXY[i] = 0;
-    BufferXZ[i] = 0;
-    BufferYZ[i] = 0;
-  }
 
-  updateMinMax();
-
-  //sort by z 
-  reSortPolys(0);
-  //draw all polygons in xy
-  for(int i = 0; i < (int) allPoly.size(); i++){
-    //draw in xy
-    drawPolygon(i, 0);
-    //allPoly[i]->printData();
-  }
-
-  //sort by y
-  reSortPolys(1);
-  //draw all polygons in xz
-  for(int i = 0; i < (int) allPoly.size(); i++){
-    //draw in xz
-    drawPolygon(i, 1);
-    //allPoly[i]->printData();
-  }
-
-  //sort by x
-  reSortPolys(2);
-  //draw all polygons in yz
-  for(int i = 0; i < (int) allPoly.size(); i++){
-    //draw in yz
-    drawPolygon(i, 2);
-    //allPoly[i]->printData();
-  }
-
-
-  //draw borders  
-  float point1[2];
-  float point2[2];
-  point1[0] = 199;
-  point1[1] = 0;
-  point2[0] = 199;
-  point2[1] = 199;
-  drawLineDDA(BufferXY, point1, point2, 1, 1, 1);//, true, p);
-  drawLineDDA(BufferXZ, point1, point2, 1, 1, 1);
-  drawLineDDA(BufferYZ, point1, point2, 1, 1, 1);
-  point1[0] = 0;
-  point1[1] = 0;
-  point2[0] = 199;
-  point2[1] = 0;
-  drawLineDDA(BufferXY, point1, point2, 1, 1, 1);//, true, p);
-  drawLineDDA(BufferXZ, point1, point2, 1, 1, 1);
-  drawLineDDA(BufferYZ, point1, point2, 1, 1, 1);
-
-  glutSetWindow(Win1);
-  glutPostRedisplay();
-  glutSetWindow(Win2);
-  glutPostRedisplay();
-  glutSetWindow(Win3);
-  glutPostRedisplay();
-}
 
 void updateRotate(int i){ 
   if(isAnimating){
@@ -570,6 +505,8 @@ void updateRotate(int i){
 void startAnimation(){
   glutTimerFunc(25, updateRotate, 0);
 }
+
+
 
 void readData(){
   string line;
@@ -696,6 +633,33 @@ void calculateC(){
   C = netdistance/numpoints;
 }
 
+void setValues(){
+  LightPX=10;
+  LightPY=10;
+  LightPZ=10;
+
+  ViewPX=9;
+  ViewPY=9;
+  ViewPZ=12;
+
+  Ka[0]=0.1;
+  Ka[1]=0.2;
+  Ka[2]=0.3;
+  Kd[0]=0.1;
+  Kd[1]=0.2;
+  Kd[2]=0.3;
+  Ks[0]=0.1;
+  Ks[1]=0.2;
+  Ks[2]=0.3;
+
+  IA=0.5;
+  IL=0.5;
+
+  PhongConst=1;
+
+  calculateC();
+}
+
 //find normal of given vertex point
 //i = which poly; j = which point in that poly
 float phongLighting(int i, int j, float ka, float kd, float ks){
@@ -704,10 +668,10 @@ float phongLighting(int i, int j, float ka, float kd, float ks){
   px = allPoly[i]->getXPoint(j);
   py = allPoly[i]->getYPoint(j);
   pz = allPoly[i]->getZPoint(j);
-  cout << "px: " << px << ", py: " << py << ", pz: " << pz << endl;
+  //cout << "px: " << px << ", py: " << py << ", pz: " << pz << endl;
 
   //avg distance between light source and scene
-  calculateC();
+  //calculateC();
 
   // || f-p || 
   //f = ViewPXYZ
@@ -717,48 +681,198 @@ float phongLighting(int i, int j, float ka, float kd, float ks){
 
 
   //get vertex normal ->n
-  float vnx, vny, vnz;
-  vnx = allPoly[i]->getVertexNormalX(j);
-  vny = allPoly[i]->getVertexNormalY(j);
-  vnz = allPoly[i]->getVertexNormalZ(j);
-  float magvn = sqrt(pow(vnx, 2) + pow(vny, 2) + pow(vnz, 2));
-  cout << "vnx: " << vnx << ", vny: " << vny << ", vnz: " << vnz << endl;
-  vnx = vnx / magvn;
-  vny = vny / magvn;
-  vnz = vnz / magvn;
-  cout << "vnx: " << vnx << ", vny: " << vny << ", vnz: " << vnz << endl;
+  float nx, ny, nz;
+  nx = allPoly[i]->getVertexNormalX(j);
+  ny = allPoly[i]->getVertexNormalY(j);
+  nz = allPoly[i]->getVertexNormalZ(j);
+  float magn = sqrt(pow(nx, 2) + pow(ny, 2) + pow(nz, 2));
+  //cout << "vnx: " << vnx << ", vny: " << vny << ", vnz: " << vnz << endl;
+  nx = nx / magn;
+  ny = ny / magn;
+  nz = nz / magn;
+  //cout << "vnx: " << vnx << ", vny: " << vny << ", vnz: " << vnz << endl;
+
+  //normalize light vector
+  float maglight  = sqrt(pow(LightPX - px, 2) + pow(LightPY - py, 2) + pow(LightPZ - pz, 2));
+  float lx = LightPX / maglight;
+  float ly = LightPY / maglight;
+  float lz = LightPZ / maglight;
 
   // kd*(->l dot* ->n)
   //->l = LightPXYZ
   //->n = vertex normal
   float kdpart;
-  float ldotn = LightPX*vnx + LightPY*vny + LightPZ*vnz;
+  float ldotn = lx*nx + ly*ny + lz*nz;
   kdpart = kd*ldotn;
 
   //get reflection normal ->r
   //->l + 2(->n dot* ->l)*->n
   float rx, ry, rz;
-  rx = LightPX + 2*(ldotn)*vnx;
-  ry = LightPY + 2*(ldotn)*vny;
-  rz = LightPZ + 2*(ldotn)*vnz;
+  rx = -lx + 2*(ldotn)*nx;
+  ry = -ly + 2*(ldotn)*ny;
+  rz = -lz + 2*(ldotn)*nz;
   float magr = sqrt(pow(rx, 2) + pow(ry, 2) + pow(rz, 2));
   rx = rx / magr;
   ry = ry / magr;
   rz = rz / magr;
 
+  //normalize viewing vector
+  float magview = sqrt(pow(ViewPX - px, 2) + pow(ViewPY - py, 2) + pow(ViewPZ - pz, 2));
+  float vx = ViewPX / magview;
+  float vy = ViewPY / magview;
+  float vz = ViewPZ / magview;
 
   // ks*(->r dot* ->v)^n
   //->r = reflection normal
   //->v = ViewPXYZ
   //n = PhongConst
   float kspart;
-  float rdotv = rx*ViewPX + ry*ViewPY + rz*ViewPZ;
+  float rdotv = rx*vx + ry*vy + rz*vz;
   kspart = ks*pow(rdotv, PhongConst);
 
+  //final calculation
   float IP;
   IP = ka*IA + (IL/(magfp + C)) * (kdpart + kspart); 
 
   return IP;
+}
+
+void setIpValues(){
+  vector<float> ipr;
+  vector<float> ipg;
+  vector<float> ipb;
+  for(int i = 0; i < (int)allPoly.size(); i++){
+    ipr.clear();
+    ipg.clear();
+    ipb.clear();
+    for(int j = 0; j < allPoly[i]->getNumPoints(); j++){
+      //phong model for given vertex of polygon
+      //red
+      float ir = phongLighting(i, j, Ka[0], Kd[0], Ks[0]);
+      //green
+      float ig = phongLighting(i, j, Ka[1], Kd[1], Ks[1]);
+      //blue
+      float ib = phongLighting(i, j, Ka[2], Kd[2], Ks[2]);
+      ipr.push_back(ir);
+      ipg.push_back(ig);
+      ipb.push_back(ib);
+    }
+    allPoly[i]->setIp(ipr, ipg, ipb);
+  }
+}
+
+//int p = which poly
+//int plane: 0=xy, 1=xz, 2=yz
+void rasterizeFaces(int p, int plane){
+  allPoly[p]->reMakeFaces(plane);
+
+  cout << "num faces: " << allPoly[p]->getNumFaces() << endl;
+  // for(int i = 0; i < allPoly[p]->getNumFaces(); i++)
+  // Face * currFace = new Face;
+  // currFace =  
+
+  // vector<int> xpoints;
+  // vector<int> ypoints;
+  // int point1[2], point2[2];
+  // for(int i = allPoly[p]->getLocalMinY() + 1; i < allPoly[p]->getLocalMaxY(); i++){
+  //   xpoints.clear();
+  //   ypoints.clear();
+  //   for(int j = 0; j < allPoly[p]->getNumEdgePoints(); j++){
+  //     if(i  == allPoly[p]->getEdgeYPoint(j)){
+  //       xpoints.push_back(allPoly[p]->getEdgeXPoint(j));
+  //       ypoints.push_back(allPoly[p]->getEdgeYPoint(j));
+  //       break;
+  //     }
+  //   }
+  //   for(int j = allPoly[p]->getNumEdgePoints() -1 ; j < allPoly[p]->getNumEdgePoints(); j--){
+  //     if(i  == allPoly[p]->getEdgeYPoint(j)){
+  //       xpoints.push_back(allPoly[p]->getEdgeXPoint(j));
+  //       ypoints.push_back(allPoly[p]->getEdgeYPoint(j));
+  //       break;
+  //     }
+  //   }
+
+  //   point1[0] = xpoints[0]; 
+  //   point1[1] = ypoints[0];
+  //   point2[0] = xpoints[1];
+  //   point2[1] = ypoints[1];
+  //   drawLineDDA(point1, point2, false, 0);
+  //   //drawLineBresenham(point1, point2, false, 0);
+  // }
+}
+
+//used to redraw scene, with updated lines and polygons
+void drawScene(){
+  //clear window
+  for (int i = 0; i < 300 * 300 * 3; i++){
+    BufferXY[i] = 0;
+    BufferXZ[i] = 0;
+    BufferYZ[i] = 0;
+  }
+
+  updateMinMax();
+
+  //sort polys by z 
+  reSortPolys(0);
+  //draw all polys in xy
+  for(int i = 0; i < (int) allPoly.size(); i++){
+    //sort faces by z
+    allPoly[i]->reSortFaces(0);
+    //draw in xy
+    drawPolygon(i, 0);
+    //establish faces to rasturize
+    allPoly[i]->reMakeFaces(0);
+    rasterizeFaces(i, 0);
+    //allPoly[i]->printData();
+  }
+
+  // //sort polys by y
+  // reSortPolys(1);
+  // //draw all polys in xz
+  // for(int i = 0; i < (int) allPoly.size(); i++){
+  //   //sort faces by y
+  //   allPoly[i]->reSortFaces(1);
+  //   //draw in xz
+  //   drawPolygon(i, 1);
+  //   //allPoly[i]->printData();
+  // }
+
+  // //sort polys by x
+  // reSortPolys(2);
+  // //draw all polys in yz
+  // for(int i = 0; i < (int) allPoly.size(); i++){
+  //   //sort faces by x
+  //   allPoly[i]->reSortFaces(2);
+  //   //draw in yz
+  //   drawPolygon(i, 2);
+  //   //allPoly[i]->printData();
+  // }
+
+
+  //draw borders  
+  float point1[2];
+  float point2[2];
+  point1[0] = 299;
+  point1[1] = 0;
+  point2[0] = 299;
+  point2[1] = 299;
+  drawLineDDA(BufferXY, point1, point2, 1, 1, 1);//, true, p);
+  drawLineDDA(BufferXZ, point1, point2, 1, 1, 1);
+  drawLineDDA(BufferYZ, point1, point2, 1, 1, 1);
+  point1[0] = 0;
+  point1[1] = 0;
+  point2[0] = 299;
+  point2[1] = 0;
+  drawLineDDA(BufferXY, point1, point2, 1, 1, 1);//, true, p);
+  drawLineDDA(BufferXZ, point1, point2, 1, 1, 1);
+  drawLineDDA(BufferYZ, point1, point2, 1, 1, 1);
+
+  glutSetWindow(Win1);
+  glutPostRedisplay();
+  glutSetWindow(Win2);
+  glutPostRedisplay();
+  glutSetWindow(Win3);
+  glutPostRedisplay();
 }
 
 
@@ -771,18 +885,20 @@ int main(int argc, char *argv[]){
     cout << "LOADING save.dat" << endl;
     readData();
   }
+  setValues();
+  setIpValues();
 
   //allocate new pixel buffer, need initialization!!
-  //main buffer 200*200
-  PixelBuffer = new float[400 * 400 * 3];
-  for (int i = 0; i < 400 * 400 * 3; i++){
+  //main buffer 300*300
+  PixelBuffer = new float[600 * 600 * 3];
+  for (int i = 0; i < 600 * 600 * 3; i++){
     PixelBuffer[i] = 0;
   }
 
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_SINGLE);
-  //set window size to 200*200
-  glutInitWindowSize(400, 400);
+  //set window size to 300*300
+  glutInitWindowSize(600, 600);
   //set window position
   glutInitWindowPosition(100, 100);
   PixelBuffer[0] = 0;
@@ -795,11 +911,11 @@ int main(int argc, char *argv[]){
   glutDisplayFunc(display);
 
   //allocate and initialize subwindow buffer
-  //subwindow size 200*200
-  BufferXY = new float[200 * 200 * 3];
-  BufferXZ = new float[200 * 200 * 3];
-  BufferYZ = new float[200 * 200 * 3];
-  for(int i = 0; i < 200 * 200 * 3; i++){
+  //subwindow size 300*300
+  BufferXY = new float[300 * 300 * 3];
+  BufferXZ = new float[300 * 300 * 3];
+  BufferYZ = new float[300 * 300 * 3];
+  for(int i = 0; i < 300 * 300 * 3; i++){
     BufferXY[i] = 0;
     BufferXZ[i] = 0;
     BufferYZ[i] = 0;
@@ -809,37 +925,21 @@ int main(int argc, char *argv[]){
   //the 5 parameters are: main window ID, xpos, ypos, width, height
   //[2][3]
   //[1][x]
-  Win1 = glutCreateSubWindow(MainWindow, 0, 200, 200, 200);
+  Win1 = glutCreateSubWindow(MainWindow, 0, 300, 300, 300);
   glutDisplayFunc(display1);
-  Win2 = glutCreateSubWindow(MainWindow, 0, 0, 200, 200);
+  Win2 = glutCreateSubWindow(MainWindow, 0, 0, 300, 300);
   glutDisplayFunc(display2);
-  Win3 = glutCreateSubWindow(MainWindow, 200, 0, 200, 200);
+  Win3 = glutCreateSubWindow(MainWindow, 300, 0, 300, 300);
   glutDisplayFunc(display3);
 
   drawScene();
 
   createMenu();    
 
-
-  //phong model for given vertex of polygon
-  // //red
-  // float ipr = phongLighting(0,0, Ka[0], Kd[0], Ks[0]);
-  // //green
-  // float ipg = phongLighting(0,0, Ka[1], Kd[1], Ks[1]);
-  // //blue
-  // float ipb = phongLighting(0,0, Ka[2], Kd[2], Ks[2]);
-
   //print poly data
-  // for(int i = 0; i < (int)allPoly.size(); i++){
-  //   for(int j = 0; j < allPoly[i]->getNumPoints(); j++){
-  //     phongLighting(i, j);
-  //   }
-  // }
-
-  //print poly data
-  // for(int i = 0; i < (int)allPoly.size(); i++){
-  //   allPoly[i]->printData();
-  // }
+  for(int i = 0; i < (int)allPoly.size(); i++){
+    allPoly[i]->printData();
+  }
 
 
   glutMainLoop();//main display loop, will display until terminate

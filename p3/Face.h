@@ -7,16 +7,24 @@ using namespace std;
 
 class Face{
   private:
-    vector<int> xpoints;
-    vector<int> ypoints;
-    vector<int> edgexpoints;
-    vector<int> edgeypoints;
+    //a/b points depends on current drawing axis
+    vector<float> apoints;
+    vector<float> bpoints;
+
+    //intensity corresponds to a/b point index
+    vector<float> IpR;
+    vector<float> IpG;
+    vector<float> IpB;
+
+    //list of edge points to use for rasturization
+    vector<float> edgeapoints;
+    vector<float> edgebpoints;
     bool israsterized;
 	 // constructor
 
   public:
     Face();
-    Face(vector<int> x, vector<int> y, bool rasterizationstate);
+    Face(vector<float> a, vector<float> b, vector<float> ipr, vector<float> ipg, vector<float> ipb);
     int getXPoint(int i);
     int getYPoint(int i);
     int getNumPoints();
