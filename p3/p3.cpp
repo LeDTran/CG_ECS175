@@ -761,44 +761,162 @@ void setIpValues(){
   }
 }
 
+void drawLineFace(float *Buffer, float * fp1, float *fp2, float r, float g, float b, Face* currFace, bool isFace){//, bool ispoly, int p){
+  //convert float points to int points
+  int p1[2], p2[2];
+  p1[0] = (int)round(fp1[0]);
+  p1[1] = (int)round(fp1[1]);
+  p2[0] = (int)round(fp2[0]);
+  p2[1] = (int)round(fp2[1]);
+
+  //reorder as p1 = left point, p2 = right point
+  if(p1[0] > p2[0]){
+    float temp[2];
+    temp[0] = p1[0];
+    temp[1] = p1[1];
+
+    p1[0] = p2[0];
+    p1[1] = p2[1];
+
+    p2[0] = temp[0];
+    p2[1] = temp[1];
+  }
+
+  float dy = p2[1] - p1[1];
+  float dx = p2[0] - p1[0]; 
+  int x, y;
+  int point[2];
+
+  //0 < slope < 1
+  if(0 <= fabs(dy/dx) && fabs(dy/dx) <= 1){
+    x = p1[0];
+    int y0 = p1[1];
+    for(int i = 0; i <= dx; i++){
+      y = round(y0 + (dy/dx)*i); 
+      point[0] = x;
+      point[1] = y;
+      if(isFace){
+        currFace->addEdgeA(point[0]);
+        currFace->addEdgeB(point[1]);
+      }  
+      drawPix(Buffer, point[0], point[1], r, g, b);
+      x = x + 1;
+    }
+  }
+  //slope > 1 
+  else if(fabs(dy/dx) > 1 || fabs(dx) == 0){
+    int x0 = p1[0];
+    y = p1[1];
+    for(int i = 0; i <= fabs(dy); i++){
+      if(dy > 1){
+        x = x0 + (dx/dy)*i;
+      }
+      if(dy < 1){
+        x = x0 - (dx/dy)*i;
+      }
+      point[0] = x;
+      point[1] = y;
+      if(isFace){
+        currFace->addEdgeA(point[0]);
+        currFace->addEdgeB(point[1]);
+      }  
+      drawPix(Buffer, point[0], point[1], r, g, b);
+      if(dy > 1){
+        y = y + 1;
+      }
+      else{
+        y = y - 1;
+      }
+    }
+  }  
+}
+
+
+//int plane: 0=xy, 1=xz, 2=yz
+void drawFace(Face* currFace, int plane){
+  for(int i = 0; i < currFace->getNumPoints(); i++){
+    //cout << "inside FOR" << endl;
+    //get coords
+    float point1[2];
+    point1[0] = currFace->getAPoint(i);
+    point1[1] = currFace->getBPoint(i);
+
+    //get next coord
+    float point2[2];
+    int j;
+    if(i == (currFace->getNumPoints()) - 1){
+      j = 0;
+    }
+    else{
+      j = i + 1;
+    }
+    point2[0] = currFace->getAPoint(j);
+    point2[1] = currFace->getBPoint(j);
+
+    //cout << point1[0] << ", " << point1[1] << " : "  << point2[0] << ", " << point2[1] << endl;
+
+    if(plane == 0){
+      //cout << "draw in XY" << endl;
+      point1[0] = getRatio(point1[0], 'x');
+      point1[1] = getRatio(point1[1], 'y');
+      point2[0] = getRatio(point2[0], 'x');
+      point2[1] = getRatio(point2[1], 'y');
+      //cout << point1[0] << ", " << point1[1] << " : "  << point2[0] << ", " << point2[1] << endl;
+      drawLineFace(BufferXY, point1, point2, 1, 0, 0, currFace, true);
+    }
+    //drawLineDDA(point1, point2, true, p);
+    //drawLineBresenham(point1, point2, true, p);
+  }
+}
+
 //int p = which poly
 //int plane: 0=xy, 1=xz, 2=yz
 void rasterizeFaces(int p, int plane){
-  allPoly[p]->reMakeFaces(plane);
+  //allPoly[p]->reMakeFaces(plane);
+  //cout << "num faces: " << allPoly[p]->getNumFaces() << ", plane: " << plane << endl;
 
-  cout << "num faces: " << allPoly[p]->getNumFaces() << endl;
-  // for(int i = 0; i < allPoly[p]->getNumFaces(); i++)
-  // Face * currFace = new Face;
-  // currFace =  
 
-  // vector<int> xpoints;
-  // vector<int> ypoints;
-  // int point1[2], point2[2];
-  // for(int i = allPoly[p]->getLocalMinY() + 1; i < allPoly[p]->getLocalMaxY(); i++){
-  //   xpoints.clear();
-  //   ypoints.clear();
-  //   for(int j = 0; j < allPoly[p]->getNumEdgePoints(); j++){
-  //     if(i  == allPoly[p]->getEdgeYPoint(j)){
-  //       xpoints.push_back(allPoly[p]->getEdgeXPoint(j));
-  //       ypoints.push_back(allPoly[p]->getEdgeYPoint(j));
-  //       break;
-  //     }
-  //   }
-  //   for(int j = allPoly[p]->getNumEdgePoints() -1 ; j < allPoly[p]->getNumEdgePoints(); j--){
-  //     if(i  == allPoly[p]->getEdgeYPoint(j)){
-  //       xpoints.push_back(allPoly[p]->getEdgeXPoint(j));
-  //       ypoints.push_back(allPoly[p]->getEdgeYPoint(j));
-  //       break;
-  //     }
-  //   }
+  for(int a = 0; a < allPoly[p]->getNumFaces(); a++){
+    Face * currFace = new Face;
+    currFace = allPoly[p]->getFace(a);
+    //currFace->printData();
+    currFace->resetEdgePoints();
+    drawFace(currFace, plane);
+    currFace->sortEdgePoints();
 
-  //   point1[0] = xpoints[0]; 
-  //   point1[1] = ypoints[0];
-  //   point2[0] = xpoints[1];
-  //   point2[1] = ypoints[1];
-  //   drawLineDDA(point1, point2, false, 0);
-  //   //drawLineBresenham(point1, point2, false, 0);
-  // }
+    vector<float> apoints;
+    vector<float> bpoints;
+    float point1[2], point2[2];
+    cout << "front: " << currFace->getLocalMinB() << ", back: " << currFace->getLocalMaxB() << endl;;
+    for(int i = (int)currFace->getLocalMinB() + 1; i < (int)currFace->getLocalMaxB(); i++){
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!_-------------------------------------------------------------------
+      apoints.clear();
+      bpoints.clear();
+      for(int j = 0; j < currFace->getNumEdgePoints(); j++){
+        if(i  == currFace->getEdgeBPoint(j)){
+          apoints.push_back(currFace->getEdgeAPoint(j));
+          bpoints.push_back(currFace->getEdgeBPoint(j));
+          break;
+        }
+      }
+      for(int j = currFace->getNumEdgePoints() -1 ; j < currFace->getNumEdgePoints(); j--){
+        if(i  == currFace->getEdgeBPoint(j)){
+          apoints.push_back(currFace->getEdgeAPoint(j));
+          bpoints.push_back(currFace->getEdgeBPoint(j));
+          break;
+        }
+      }
+
+      point1[0] = apoints[0]; 
+      point1[1] = bpoints[0];
+      point2[0] = apoints[1];
+      point2[1] = bpoints[1];
+
+      drawLineFace(BufferXY, point1, point2, 1, 0, 0, currFace, false);      
+      //drawLineDDA(point1, point2, false, 0);
+      //drawLineBresenham(point1, point2, false, 0);
+    }
+  }
 }
 
 //used to redraw scene, with updated lines and polygons
@@ -819,7 +937,7 @@ void drawScene(){
     //sort faces by z
     allPoly[i]->reSortFaces(0);
     //draw in xy
-    drawPolygon(i, 0);
+    //drawPolygon(i, 0);
     //establish faces to rasturize
     allPoly[i]->reMakeFaces(0);
     rasterizeFaces(i, 0);
@@ -936,10 +1054,10 @@ int main(int argc, char *argv[]){
 
   createMenu();    
 
-  //print poly data
-  for(int i = 0; i < (int)allPoly.size(); i++){
-    allPoly[i]->printData();
-  }
+  // //print poly data
+  // for(int i = 0; i < (int)allPoly.size(); i++){
+  //   allPoly[i]->printData();
+  // }
 
 
   glutMainLoop();//main display loop, will display until terminate

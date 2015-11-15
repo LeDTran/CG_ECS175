@@ -44,6 +44,9 @@ void calculateC();
 void setValues();
 float phongLighting(int i, int j);
 void setIpValues();
+void drawLineFace(float *Buffer, float * fp1, float *fp2, float r, float g, float b);
+void drawFace(Face* currFace, int plane);
+void rasterizeFaces(int p, int plane);
 void drawScene();
 
 

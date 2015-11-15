@@ -64,9 +64,6 @@ void Poly::printData(){
   // }
 
   cout << "------------------------------------" << endl;
-
-
-
 }
 
 float Poly::getXPoint(int i){
@@ -430,7 +427,7 @@ void Poly::setIp(vector<float> ipr, vector<float>ipg, vector<float> ipb){
 
 //int plane: 0=xy, 1=xz, 2=yz
 void Poly::reMakeFaces(int plane){
-  cout << "MAKING FACES" << endl;
+  //cout << "MAKING FACES" << endl;
   polyFaces.clear();
   //need pass in ab points, face p1, point intensities
   if(plane == 0){

@@ -14,146 +14,168 @@ Face::Face(vector<float> as, vector<float> bs,
   IpB = ipb;
 }
 
-int Face::getXPoint(int i){
-  return xpoints[i];
+void Face::printData(){
+  cout << "ab" << endl;
+  for(int i = 0; i < (int)apoints.size(); i++){
+    cout << apoints[i] << " " << bpoints[i] << endl;
+  }
+
+  // cout << "line points" << endl;
+  // for(int i = 0; i < (int)linep1.size(); i++){
+  //   cout << linep1[i] + 1 << " " << linep2[i] + 1 << endl;
+  // }
+
+  // cout << "face points" << endl;
+  // for(int i = 0; i < (int)facep1.size(); i++){
+  //   cout << facep1[i] + 1 << " " << facep2[i] + 1 << " " << facep3[i] + 1 << endl;
+  // }
+
+  // cout << "normal points" << endl;
+  // for(int i = 0; i < (int)facep1.size(); i++){
+  //   cout << fnormx[i] << " " << fnormy[i] << " " << fnormz[i] << " " << endl;
+  // }
+
+  // cout << "Ip" << endl;
+  // for(int i = 0; i < (int)IpR.size(); i++){
+  //       cout << IpR[i] << " " << IpG[i] << " " << IpB[i] << " " << endl;
+  // }
+
+  cout << "------------------------------------" << endl;
 }
 
-int Face::getYPoint(int i){
-  return ypoints[i];
+float Face::getAPoint(int i){
+  return apoints[i];
+}
+
+float Face::getBPoint(int i){
+  return bpoints[i];
 }
 
 int Face::getNumPoints(){
-  return xpoints.size();
+  return apoints.size();
 }
 
-int Face::getCentroidX(){
-  int x = 0;
-  for(int i = 0; i < getNumPoints(); i++){
-    x = x + xpoints[i];
-  }
-  return round(x/getNumPoints());
-}
-
-int Face::getCentroidY(){
-  int y = 0;
-  for(int i = 0; i < getNumPoints(); i++){
-    y = y + ypoints[i];
-  }
-  return round(y/getNumPoints());
-}
-
-void Face::translatePoly(int dx, int dy){
-  for(int i = 0; i < getNumPoints(); i++){
-    xpoints[i] = xpoints[i] + dx;
-    ypoints[i] = ypoints[i] + dy;
-  }
-}
-
-void Face::scalePoly(float sx, float sy){
-  for(int i = 0; i < getNumPoints(); i++){
-    xpoints[i] = round((float)xpoints[i] * sx);
-    ypoints[i] = round((float)ypoints[i] * sy);
-  }
-}
-
-void Face::rotatePoly(int deg){
-  float xNew;
-  float yNew;
-  //float radian =  deg * M_PI  / 180.0;
-  for(int i = 0; i < getNumPoints(); i++){
-    xNew = round(cos(deg * M_PI  / 180.0)*(float)xpoints[i] - sin(deg * M_PI  / 180.0)*(float)ypoints[i]);
-    yNew = round(sin(deg * M_PI  / 180.0)*(float)xpoints[i] + cos(deg * M_PI  / 180.0)*(float)ypoints[i]);
-    xpoints[i] = (int)xNew;
-    ypoints[i] = (int)yNew;
-  }
-}
-
-int Face::getLocalMaxY(){
-  int max = ypoints[0];
-  for(int i = 0; i < (int)ypoints.size(); i++){
-    if(ypoints[i] > max){
-      max = ypoints[i];
+float Face::getLocalMaxB(){
+  //need to get local max from stored edge points 
+  float max = edgebpoints[0];
+  for(int i = 0; i < (int)edgebpoints.size(); i++){
+    if(edgebpoints[i] > max){
+      max = edgebpoints[i];
     }
   }
   return max;
 }
 
-int Face::getLocalMinY(){
-  int min = ypoints[0];
-  for(int i = 0; i < (int)ypoints.size(); i++){
-    if(ypoints[i] < min){
-      min = ypoints[i];
+float Face::getLocalMinB(){
+  //need to get local min from stored edge points 
+  int min = edgebpoints[0];
+  for(int i = 0; i < (int)edgebpoints.size(); i++){
+    if(edgebpoints[i] < min){
+      min = edgebpoints[i];
     }
   }
   return min;
 }
 
-void Face::addEdgeX(int x){
-  edgexpoints.push_back(x);
+void Face::addEdgeA(float a){
+  edgeapoints.push_back(a);
 }
 
-void Face::addEdgeY(int y){
-  edgeypoints.push_back(y);
+void Face::addEdgeB(float b){
+  edgebpoints.push_back(b);
 }
 
 void Face::resetEdgePoints(){
-  edgexpoints.clear();
-  edgeypoints.clear();
+  edgeapoints.clear();
+  edgebpoints.clear();
 }
 
 void Face::sortEdgePoints(){
-  int i, j, tmpx, tmpy;
+  float i, j, tmpa, tmpb;
   for (i = 1; i < getNumEdgePoints(); i++){
     j = i; 
-    while(j > 0 && edgeypoints[j - 1] > edgeypoints[j]){
-      tmpx = edgexpoints[j];
-      tmpy = edgeypoints[j];
-      edgexpoints[j] = edgexpoints[j - 1];
-      edgeypoints[j] = edgeypoints[j - 1];
-      edgexpoints[j - 1] = tmpx;
-      edgeypoints[j - 1] = tmpy;
+    while(j > 0 && edgebpoints[j - 1] > edgebpoints[j]){
+      tmpa = edgeapoints[j];
+      tmpb = edgebpoints[j];
+      edgeapoints[j] = edgeapoints[j - 1];
+      edgebpoints[j] = edgebpoints[j - 1];
+      edgeapoints[j - 1] = tmpa;
+      edgebpoints[j - 1] = tmpb;
       j--;
     }
   }
 
-  int low = 0, high = 0;
+  float low = 0, high = 0;
   while(low < getNumEdgePoints()){
     high++;
-    if(edgeypoints[high] != edgeypoints[high -1]){
+    if(edgebpoints[high] != edgebpoints[high -1]){
       for (i = low; i < high; i++){
         j = i; 
-        while(j > low && edgexpoints[j - 1] > edgexpoints[j]){
-          tmpx = edgexpoints[j];
-          tmpy = edgeypoints[j];
-          edgexpoints[j] = edgexpoints[j - 1];
-          edgeypoints[j] = edgeypoints[j - 1];
-          edgexpoints[j - 1] = tmpx;
-          edgeypoints[j - 1] = tmpy;
+        while(j > low && edgeapoints[j - 1] > edgeapoints[j]){
+          tmpa = edgeapoints[j];
+          tmpb = edgebpoints[j];
+          edgeapoints[j] = edgeapoints[j - 1];
+          edgebpoints[j] = edgebpoints[j - 1];
+          edgeapoints[j - 1] = tmpa;
+          edgebpoints[j - 1] = tmpb;
           j--;
         }
       }
       low = high;
     }
   }
+
+  // for(int a = 0; a < (int)edgeapoints.size(); a++){
+  //   cout << edgeapoints[a] << ", " << edgebpoints[a] << endl;
+  // }
+  // cout << "----------------------" << endl;
 }
+
+// void Face::sortEdgePoints(){
+//   int i, j, tmpx, tmpy;
+//   for (i = 1; i < getNumEdgePoints(); i++){
+//     j = i; 
+//     while(j > 0 && edgeypoints[j - 1] > edgeypoints[j]){
+//       tmpx = edgexpoints[j];
+//       tmpy = edgeypoints[j];
+//       edgexpoints[j] = edgexpoints[j - 1];
+//       edgeypoints[j] = edgeypoints[j - 1];
+//       edgexpoints[j - 1] = tmpx;
+//       edgeypoints[j - 1] = tmpy;
+//       j--;
+//     }
+//   }
+
+//   int low = 0, high = 0;
+//   while(low < getNumEdgePoints()){
+//     high++;
+//     if(edgeypoints[high] != edgeypoints[high -1]){
+//       for (i = low; i < high; i++){
+//         j = i; 
+//         while(j > low && edgexpoints[j - 1] > edgexpoints[j]){
+//           tmpx = edgexpoints[j];
+//           tmpy = edgeypoints[j];
+//           edgexpoints[j] = edgexpoints[j - 1];
+//           edgeypoints[j] = edgeypoints[j - 1];
+//           edgexpoints[j - 1] = tmpx;
+//           edgeypoints[j - 1] = tmpy;
+//           j--;
+//         }
+//       }
+//       low = high;
+//     }
+//   }
+// }
 
 int Face::getNumEdgePoints(){
-  return edgexpoints.size();
+  return edgeapoints.size();
 }
 
-int Face::getEdgeXPoint(int i){
-  return edgexpoints[i];
+float Face::getEdgeAPoint(int i){
+  return edgeapoints[i];
 }
 
-int Face::getEdgeYPoint(int i){
-  return edgeypoints[i];
-}
-
-void Face::turnOnRasterization(){
-  israsterized = true;
-}
-
-bool Face::getIsRasterized(){
-  return israsterized;
+float Face::getEdgeBPoint(int i){
+  return edgebpoints[i];
 }
 

@@ -19,31 +19,23 @@ class Face{
     //list of edge points to use for rasturization
     vector<float> edgeapoints;
     vector<float> edgebpoints;
-    bool israsterized;
-	 // constructor
 
   public:
     Face();
     Face(vector<float> a, vector<float> b, vector<float> ipr, vector<float> ipg, vector<float> ipb);
-    int getXPoint(int i);
-    int getYPoint(int i);
+    void printData();
+    float getAPoint(int i);
+    float getBPoint(int i);
     int getNumPoints();
-    int getCentroidX();
-    int getCentroidY();
-    void translatePoly(int dx, int dy);
-    void scalePoly(float sx, float sy);
-    void rotatePoly(int deg);
-    int getLocalMaxY();
-    int getLocalMinY();
-    void addEdgeX(int x);
-    void addEdgeY(int y);
+    float getLocalMaxB();
+    float getLocalMinB();
+    void addEdgeA(float a);
+    void addEdgeB(float b);
     void resetEdgePoints();
     void sortEdgePoints();
     int getNumEdgePoints();
-    int getEdgeXPoint(int i);
-	int getEdgeYPoint(int i);
-    void turnOnRasterization();
-    bool getIsRasterized();
+    float getEdgeAPoint(int i);
+	float getEdgeBPoint(int i);
 };
 
 #endif
