@@ -446,15 +446,15 @@ float Poly::getIpMAX(){
 void Poly::reMakeFaces(int plane){
   //cout << "MAKING FACES" << endl;
   polyFaces.clear();
-  //need pass in ab points, face p1, point intensities
+  //xy plane
   if(plane == 0){
     //need to load in face points in terms of xy
-      vector<float> xs;
-      vector<float> ys;
+    vector<float> xs;
+    vector<float> ys;
 
-      vector<float> ipr;
-      vector<float> ipg;
-      vector<float> ipb;
+    vector<float> ipr;
+    vector<float> ipg;
+    vector<float> ipb;
 
     for(int i = 0; i < (int)facep1.size(); i++){
       xs.clear();
@@ -486,9 +486,83 @@ void Poly::reMakeFaces(int plane){
       polyFaces.push_back(myFace);
     }
   }
+  //xz plane
   else if (plane == 1){
+    vector<float> xs;
+    vector<float> zs;
+
+    vector<float> ipr;
+    vector<float> ipg;
+    vector<float> ipb;
+
+    for(int i = 0; i < (int)facep1.size(); i++){
+      xs.clear();
+      zs.clear();
+      ipr.clear();
+      ipg.clear();
+      ipb.clear();
+
+      //load in points of each face
+      xs.push_back(xpoints[facep1[i]]);
+      zs.push_back(zpoints[facep1[i]]);
+      xs.push_back(xpoints[facep2[i]]);
+      zs.push_back(zpoints[facep2[i]]);
+      xs.push_back(xpoints[facep3[i]]);
+      zs.push_back(zpoints[facep3[i]]);
+
+      //load in intensity values of face points
+      ipr.push_back(IpR[facep1[i]]);
+      ipg.push_back(IpG[facep1[i]]);
+      ipb.push_back(IpB[facep1[i]]);
+      ipr.push_back(IpR[facep2[i]]);
+      ipg.push_back(IpG[facep2[i]]);
+      ipb.push_back(IpB[facep2[i]]);
+      ipr.push_back(IpR[facep3[i]]);
+      ipg.push_back(IpG[facep3[i]]);
+      ipb.push_back(IpB[facep3[i]]);
+
+      Face * myFace = new Face(xs, zs, ipr, ipg, ipb); 
+      polyFaces.push_back(myFace);
+    }
   }
+  //yz plane
   else if (plane == 2){
+    vector<float> ys;
+    vector<float> zs;
+
+    vector<float> ipr;
+    vector<float> ipg;
+    vector<float> ipb;
+
+    for(int i = 0; i < (int)facep1.size(); i++){
+      ys.clear();
+      zs.clear();
+      ipr.clear();
+      ipg.clear();
+      ipb.clear();
+
+      //load in points of each face
+      ys.push_back(ypoints[facep1[i]]);
+      zs.push_back(zpoints[facep1[i]]);
+      ys.push_back(ypoints[facep2[i]]);
+      zs.push_back(zpoints[facep2[i]]);
+      ys.push_back(ypoints[facep3[i]]);
+      zs.push_back(zpoints[facep3[i]]);
+
+      //load in intensity values of face points
+      ipr.push_back(IpR[facep1[i]]);
+      ipg.push_back(IpG[facep1[i]]);
+      ipb.push_back(IpB[facep1[i]]);
+      ipr.push_back(IpR[facep2[i]]);
+      ipg.push_back(IpG[facep2[i]]);
+      ipb.push_back(IpB[facep2[i]]);
+      ipr.push_back(IpR[facep3[i]]);
+      ipg.push_back(IpG[facep3[i]]);
+      ipb.push_back(IpB[facep3[i]]);
+
+      Face * myFace = new Face(ys, zs, ipr, ipg, ipb); 
+      polyFaces.push_back(myFace);
+    }
   }
 }
 

@@ -473,7 +473,7 @@ void updateRotate(int i){
       rotatePolygon(i, 
       0, 0, 0, 
       100, 100, 100,
-      1);
+      2);
     }
     drawScene();  
     //draw rotation axis
@@ -484,28 +484,28 @@ void updateRotate(int i){
     point1[1] = getRatio(-1000, 'y');
     point2[0] = getRatio(1000, 'x');
     point2[1] = getRatio(1000, 'y');
-    drawLineDDA(BufferXY, point1, point2, 1, 0, 0);
+    //drawLineDDA(BufferXY, point1, point2, 1, 0, 0);
 
     //plot XZ
     point1[0] = getRatio(-1000, 'x');
     point1[1] = getRatio(-1000, 'z');
     point2[0] = getRatio(1000, 'x');
     point2[1] = getRatio(1000, 'z');   
-    drawLineDDA(BufferXZ, point1, point2, 0, 1, 0);
+    //drawLineDDA(BufferXZ, point1, point2, 0, 1, 0);
 
     //plot YZ
     point1[0] = getRatio(-1000, 'y');
     point1[1] = getRatio(-1000, 'z');
     point2[0] = getRatio(1000, 'y');
     point2[1] = getRatio(1000, 'z');
-    drawLineDDA(BufferYZ, point1, point2, 0, 0, 1);
+    //drawLineDDA(BufferYZ, point1, point2, 0, 0, 1);
 
-    glutTimerFunc(25, updateRotate, 0);
+    glutTimerFunc(10, updateRotate, 0);
   }
 }
 
 void startAnimation(){
-  glutTimerFunc(25, updateRotate, 0);
+  glutTimerFunc(10, updateRotate, 0);
 }
 
 
@@ -636,32 +636,32 @@ void calculateC(){
 }
 
 void setValues(){
-  LightPX=3;
-  LightPY=3;
-  LightPZ=20;
+  LightPX=10;
+  LightPY=10;
+  LightPZ=10;
 
-  ViewPX=12;
-  ViewPY=12;
-  ViewPZ=12;
+  ViewPX=5;
+  ViewPY=5;
+  ViewPZ=5;
 
-  Ka[0]=0.1;
-  Ka[1]=0.2;
-  Ka[2]=0.3;
-  Kd[0]=0.4;
-  Kd[1]=0.5;
-  Kd[2]=0.6;
-  Ks[0]=0.7;
-  Ks[1]=0.8;
-  Ks[2]=0.9;
+  Ka[0]=0;
+  Ka[1]=0;
+  Ka[2]=0;
+  Kd[0]=1;
+  Kd[1]=0;
+  Kd[2]=0;
+  Ks[0]=1;
+  Ks[1]=1;
+  Ks[2]=1;
 
-  IA[0]=0.9;
-  IA[1]=0.9;
-  IA[2]=0.9;
-  IL[0]=0.8;
-  IL[1]=0.8;
-  IL[2]=0.8;
+  IA[0]=1;
+  IA[1]=0;
+  IA[2]=0;
+  IL[0]=1;
+  IL[1]=1;
+  IL[2]=1;
 
-  PhongConst=3;
+  PhongConst=2;
 
   calculateC();
 }
@@ -864,6 +864,7 @@ void drawLineFace(float *Buffer, float * fp1, float *fp2,
         //cout << "gouraud intensity: " << iar << " " <<  iag << " " << iab << endl;
       } 
 
+      //drawPix(Buffer, point[0], point[1], iar, iag, iab);
       drawPix(Buffer, point[0], point[1], iar/MAXIp, iag/MAXIp, iab/MAXIp);
       //drawPix(Buffer, point[0], point[1], r, g, b);
       x = x + 1;
@@ -893,6 +894,7 @@ void drawLineFace(float *Buffer, float * fp1, float *fp2,
         //cout << "gouraud intensity: " << iar << " " <<  iag << " " << iab << endl;
       }  
 
+      //drawPix(Buffer, point[0], point[1], iar, iag, iab);
       drawPix(Buffer, point[0], point[1], iar/MAXIp, iag/MAXIp, iab/MAXIp);
       //drawPix(Buffer, point[0], point[1], r, g, b);
       if(dy > 1){
@@ -948,6 +950,24 @@ void drawFace(Face* currFace, int plane){
       //cout << point1[0] << ", " << point1[1] << " : "  << point2[0] << ", " << point2[1] << endl;
       drawLineFace(BufferXY, point1, point2, currFace, true, ip1, ip2);
     }
+    else if(plane == 1){
+      //cout << "draw in XY" << endl;
+      point1[0] = getRatio(point1[0], 'x');
+      point1[1] = getRatio(point1[1], 'z');
+      point2[0] = getRatio(point2[0], 'x');
+      point2[1] = getRatio(point2[1], 'z');
+      //cout << point1[0] << ", " << point1[1] << " : "  << point2[0] << ", " << point2[1] << endl;
+      drawLineFace(BufferXZ, point1, point2, currFace, true, ip1, ip2);
+    }
+    else if(plane == 2){
+      //cout << "draw in XY" << endl;
+      point1[0] = getRatio(point1[0], 'y');
+      point1[1] = getRatio(point1[1], 'z');
+      point2[0] = getRatio(point2[0], 'y');
+      point2[1] = getRatio(point2[1], 'z');
+      //cout << point1[0] << ", " << point1[1] << " : "  << point2[0] << ", " << point2[1] << endl;
+      drawLineFace(BufferYZ, point1, point2, currFace, true, ip1, ip2);
+    }
     //drawLineDDA(point1, point2, true, p);
     //drawLineBresenham(point1, point2, true, p);
   }
@@ -963,7 +983,7 @@ void rasterizeFaces(int p, int plane){
   for(int a = 0; a < allPoly[p]->getNumFaces(); a++){
     Face * currFace = new Face;
     currFace = allPoly[p]->getFace(a);
-    currFace->printData();
+    //currFace->printData();
     currFace->resetEdgePoints();
     drawFace(currFace, plane);
     currFace->sortEdgePoints();
@@ -1007,7 +1027,15 @@ void rasterizeFaces(int p, int plane){
       point2[0] = apoints[1];
       point2[1] = bpoints[1];
 
-      drawLineFace(BufferXY, point1, point2, currFace, false, ia1, ia2);      
+      if(plane == 0){
+        drawLineFace(BufferXY, point1, point2, currFace, false, ia1, ia2);
+      }
+      else if (plane  == 1){
+        drawLineFace(BufferXZ, point1, point2, currFace, false, ia1, ia2);
+      }      
+      else if (plane  == 2){
+        drawLineFace(BufferYZ, point1, point2, currFace, false, ia1, ia2);
+      }
       //drawLineDDA(point1, point2, false, 0);
       //drawLineBresenham(point1, point2, false, 0);
     }
@@ -1026,7 +1054,7 @@ void drawScene(){
   updateMinMax();
 
   //sort polys by z 
-  //reSortPolys(0);
+  ////reSortPolys(0);
   //draw all polys in xy
   for(int i = 0; i < (int) allPoly.size(); i++){
     //sort faces by z
@@ -1041,26 +1069,30 @@ void drawScene(){
   }
 
   // //sort polys by y
-  // reSortPolys(1);
-  // //draw all polys in xz
-  // for(int i = 0; i < (int) allPoly.size(); i++){
-  //   //sort faces by y
-  //   allPoly[i]->reSortFaces(1);
-  //   //draw in xz
-  //   drawPolygon(i, 1);
-  //   //allPoly[i]->printData();
-  // }
+  // //reSortPolys(1);
+  //draw all polys in xz
+  for(int i = 0; i < (int) allPoly.size(); i++){
+    //sort faces by y
+    allPoly[i]->reSortFaces(1);
+    //draw in xz
+    allPoly[i]->reMakeFaces(1);
+    rasterizeFaces(i, 1);
+    //drawPolygon(i, 1);
+    //allPoly[i]->printData();
+  }
 
-  // //sort polys by x
-  // reSortPolys(2);
-  // //draw all polys in yz
-  //for(int i = 0; i < (int) allPoly.size(); i++){
-  //   //sort faces by x
-  //  allPoly[i]->reSortFaces(2);
-  //   //draw in yz
-  //   drawPolygon(i, 2);
-  //  allPoly[i]->printData();
-  //}
+  //sort polys by x
+  //reSortPolys(2);
+  //draw all polys in yz
+  for(int i = 0; i < (int) allPoly.size(); i++){
+    //sort faces by x
+   allPoly[i]->reSortFaces(2);
+    //draw in yz
+    allPoly[i]->reMakeFaces(2);
+    rasterizeFaces(i, 2);
+    //drawPolygon(i, 2);
+   //  allPoly[i]->printData();
+  }
 
 
   //draw borders  
