@@ -24,11 +24,13 @@ float ViewPX, ViewPY, ViewPZ;
 float Ka[3], Kd[3], Ks[3];
 //ambient light intensity, light source intensity
 //range [0,1]
-float IA, IL;
+float IA[3], IL[3];
 //Phong constant
 float PhongConst;
 //average distance between scene and light source
 float C;
+
+float MAXIp;
 
 void drawPix(float *Buffer, int x, int y, float red, float green, float blue){
   if(0 <= x && x <= 300 && 0 <= y && y <= 300){
@@ -634,35 +636,39 @@ void calculateC(){
 }
 
 void setValues(){
-  LightPX=10;
-  LightPY=10;
-  LightPZ=10;
+  LightPX=3;
+  LightPY=3;
+  LightPZ=20;
 
-  ViewPX=9;
-  ViewPY=9;
+  ViewPX=12;
+  ViewPY=12;
   ViewPZ=12;
 
   Ka[0]=0.1;
   Ka[1]=0.2;
   Ka[2]=0.3;
-  Kd[0]=0.1;
-  Kd[1]=0.2;
-  Kd[2]=0.3;
-  Ks[0]=0.1;
-  Ks[1]=0.2;
-  Ks[2]=0.3;
+  Kd[0]=0.4;
+  Kd[1]=0.5;
+  Kd[2]=0.6;
+  Ks[0]=0.7;
+  Ks[1]=0.8;
+  Ks[2]=0.9;
 
-  IA=0.5;
-  IL=0.5;
+  IA[0]=0.9;
+  IA[1]=0.9;
+  IA[2]=0.9;
+  IL[0]=0.8;
+  IL[1]=0.8;
+  IL[2]=0.8;
 
-  PhongConst=1;
+  PhongConst=3;
 
   calculateC();
 }
 
 //find normal of given vertex point
 //i = which poly; j = which point in that poly
-float phongLighting(int i, int j, float ka, float kd, float ks){
+float phongLighting(int i, int j, float ka, float kd, float ks, float ia, float il){
   //vertex point
   float px, py, pz;
   px = allPoly[i]->getXPoint(j);
@@ -732,7 +738,7 @@ float phongLighting(int i, int j, float ka, float kd, float ks){
 
   //final calculation
   float IP;
-  IP = ka*IA + (IL/(magfp + C)) * (kdpart + kspart); 
+  IP = ka*ia + (il/(magfp + C)) * (kdpart + kspart); 
 
   return IP;
 }
@@ -748,20 +754,50 @@ void setIpValues(){
     for(int j = 0; j < allPoly[i]->getNumPoints(); j++){
       //phong model for given vertex of polygon
       //red
-      float ir = phongLighting(i, j, Ka[0], Kd[0], Ks[0]);
+      float ir = phongLighting(i, j, Ka[0], Kd[0], Ks[0], IA[0], IL[0]);
       //green
-      float ig = phongLighting(i, j, Ka[1], Kd[1], Ks[1]);
+      float ig = phongLighting(i, j, Ka[1], Kd[1], Ks[1], IA[1], IL[1]);
       //blue
-      float ib = phongLighting(i, j, Ka[2], Kd[2], Ks[2]);
+      float ib = phongLighting(i, j, Ka[2], Kd[2], Ks[2], IA[2], IL[2]);
       ipr.push_back(ir);
       ipg.push_back(ig);
       ipb.push_back(ib);
     }
     allPoly[i]->setIp(ipr, ipg, ipb);
   }
+
+  MAXIp = 0;
+  for(int i = 0; i < (int)allPoly.size(); i++){
+    float tempMAX = allPoly[i]->getIpMAX();
+    if(tempMAX > MAXIp){
+      MAXIp = tempMAX;
+    }
+    //allPoly[i]->printData();
+  }
+  //cout << "MAXIP: " << MAXIp << endl;;
 }
 
-void drawLineFace(float *Buffer, float * fp1, float *fp2, float r, float g, float b, Face* currFace, bool isFace){//, bool ispoly, int p){
+float gouraudShading(int *p1, int *p2, int *pa, float i1, float i2){
+  float dy = p2[1] - p1[1];
+  float dx = p2[0] - p1[0]; 
+  float ia;
+
+  //cout << "dy/dx: " << dy/dx << endl;
+
+  if(fabs(dy/dx) >= 1){
+    //cout << "steep!" << endl;
+    ia = (i1*(pa[1] - p2[1]) + i2*(p1[1] - pa[1])) / (p1[1] - p2[1]);
+  }
+  else if(fabs(dy/dx) < 1){
+    ia = (i1*(pa[0] - p2[0]) + i2*(p1[0] - pa[0])) / (p1[0] - p2[0]);
+  }
+
+  return ia;
+}
+
+//bool isface: true = outline, false = rasterize
+void drawLineFace(float *Buffer, float * fp1, float *fp2,  
+                  Face* currFace, bool isFace, float *ip1, float *ip2){
   //convert float points to int points
   int p1[2], p2[2];
   p1[0] = (int)round(fp1[0]);
@@ -780,12 +816,33 @@ void drawLineFace(float *Buffer, float * fp1, float *fp2, float r, float g, floa
 
     p2[0] = temp[0];
     p2[1] = temp[1];
+
+    float tmpip[3];
+    tmpip[0] = ip1[0]; 
+    tmpip[1] = ip1[1];
+    tmpip[2] = ip1[2];
+
+    ip1[0] = ip2[0];
+    ip1[1] = ip2[1];
+    ip1[2] = ip2[2];
+
+    ip2[0] = tmpip[0];
+    ip2[1] = tmpip[1];
+    ip2[2] = tmpip[2];
   }
+
+    // cout << "p1: " << p1[0] << ", " << p1[1] << ", p2: " << p2[0] << "," << p2[1] << endl;
+    // cout << "ip1: " << ip1[0] << " " << ip1[1] << " " << ip1[2] << endl; 
+    // cout << "ip2: " << ip2[0] << " " << ip2[1] << " " << ip2[2] << endl; 
+
+    // cout <<  "-----------------------------------------------------------------------------" << endl;
 
   float dy = p2[1] - p1[1];
   float dx = p2[0] - p1[0]; 
   int x, y;
   int point[2];
+
+  //cout << "dy/dx: " << dy/dx;
 
   //0 < slope < 1
   if(0 <= fabs(dy/dx) && fabs(dy/dx) <= 1){
@@ -795,11 +852,20 @@ void drawLineFace(float *Buffer, float * fp1, float *fp2, float r, float g, floa
       y = round(y0 + (dy/dx)*i); 
       point[0] = x;
       point[1] = y;
+      float iar = gouraudShading(p1, p2, point, ip1[0], ip2[0]);
+      float iag = gouraudShading(p1, p2, point, ip1[1], ip2[1]);
+      float iab = gouraudShading(p1, p2, point, ip1[2], ip2[2]);
+      //cout << "gouraud intensity: " << iar << " " <<  iag << " " << iab << endl;
+
       if(isFace){
         currFace->addEdgeA(point[0]);
         currFace->addEdgeB(point[1]);
-      }  
-      drawPix(Buffer, point[0], point[1], r, g, b);
+        currFace->setEdgeIntensity(iar, iag, iab);
+        //cout << "gouraud intensity: " << iar << " " <<  iag << " " << iab << endl;
+      } 
+
+      drawPix(Buffer, point[0], point[1], iar/MAXIp, iag/MAXIp, iab/MAXIp);
+      //drawPix(Buffer, point[0], point[1], r, g, b);
       x = x + 1;
     }
   }
@@ -816,11 +882,19 @@ void drawLineFace(float *Buffer, float * fp1, float *fp2, float r, float g, floa
       }
       point[0] = x;
       point[1] = y;
+      float iar = gouraudShading(p1, p2, point, ip1[0], ip2[0]);
+      float iag = gouraudShading(p1, p2, point, ip1[1], ip2[1]);
+      float iab = gouraudShading(p1, p2, point, ip1[2], ip2[2]);
+      //cout << "gouraud intensity: " << iar << " " <<  iag << " " << iab << endl;
       if(isFace){
         currFace->addEdgeA(point[0]);
         currFace->addEdgeB(point[1]);
+        currFace->setEdgeIntensity(iar, iag, iab);
+        //cout << "gouraud intensity: " << iar << " " <<  iag << " " << iab << endl;
       }  
-      drawPix(Buffer, point[0], point[1], r, g, b);
+
+      drawPix(Buffer, point[0], point[1], iar/MAXIp, iag/MAXIp, iab/MAXIp);
+      //drawPix(Buffer, point[0], point[1], r, g, b);
       if(dy > 1){
         y = y + 1;
       }
@@ -841,6 +915,11 @@ void drawFace(Face* currFace, int plane){
     point1[0] = currFace->getAPoint(i);
     point1[1] = currFace->getBPoint(i);
 
+    float ip1[3];
+    ip1[0] = currFace->getPointIntensity(i, 0);
+    ip1[1] = currFace->getPointIntensity(i, 1);
+    ip1[2] = currFace->getPointIntensity(i, 2);
+
     //get next coord
     float point2[2];
     int j;
@@ -853,6 +932,11 @@ void drawFace(Face* currFace, int plane){
     point2[0] = currFace->getAPoint(j);
     point2[1] = currFace->getBPoint(j);
 
+    float ip2[3];
+    ip2[0] = currFace->getPointIntensity(j, 0);
+    ip2[1] = currFace->getPointIntensity(j, 1);
+    ip2[2] = currFace->getPointIntensity(j, 2);
+
     //cout << point1[0] << ", " << point1[1] << " : "  << point2[0] << ", " << point2[1] << endl;
 
     if(plane == 0){
@@ -862,7 +946,7 @@ void drawFace(Face* currFace, int plane){
       point2[0] = getRatio(point2[0], 'x');
       point2[1] = getRatio(point2[1], 'y');
       //cout << point1[0] << ", " << point1[1] << " : "  << point2[0] << ", " << point2[1] << endl;
-      drawLineFace(BufferXY, point1, point2, 1, 0, 0, currFace, true);
+      drawLineFace(BufferXY, point1, point2, currFace, true, ip1, ip2);
     }
     //drawLineDDA(point1, point2, true, p);
     //drawLineBresenham(point1, point2, true, p);
@@ -879,7 +963,7 @@ void rasterizeFaces(int p, int plane){
   for(int a = 0; a < allPoly[p]->getNumFaces(); a++){
     Face * currFace = new Face;
     currFace = allPoly[p]->getFace(a);
-    //currFace->printData();
+    currFace->printData();
     currFace->resetEdgePoints();
     drawFace(currFace, plane);
     currFace->sortEdgePoints();
@@ -887,7 +971,8 @@ void rasterizeFaces(int p, int plane){
     vector<float> apoints;
     vector<float> bpoints;
     float point1[2], point2[2];
-    cout << "front: " << currFace->getLocalMinB() << ", back: " << currFace->getLocalMaxB() << endl;;
+    float ia1[3], ia2[3];
+    // //cout << "front: " << currFace->getLocalMinB() << ", back: " << currFace->getLocalMaxB() << endl;;
     for(int i = (int)currFace->getLocalMinB() + 1; i < (int)currFace->getLocalMaxB(); i++){
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!_-------------------------------------------------------------------
       apoints.clear();
@@ -896,13 +981,23 @@ void rasterizeFaces(int p, int plane){
         if(i  == currFace->getEdgeBPoint(j)){
           apoints.push_back(currFace->getEdgeAPoint(j));
           bpoints.push_back(currFace->getEdgeBPoint(j));
+
+          ia1[0] = currFace->getEdgeIntensity(j, 0);
+          ia1[1] = currFace->getEdgeIntensity(j, 1);
+          ia1[2] = currFace->getEdgeIntensity(j, 2);
+
           break;
         }
       }
-      for(int j = currFace->getNumEdgePoints() -1 ; j < currFace->getNumEdgePoints(); j--){
+      for(int j = currFace->getNumEdgePoints() - 1; j < currFace->getNumEdgePoints(); j--){
         if(i  == currFace->getEdgeBPoint(j)){
           apoints.push_back(currFace->getEdgeAPoint(j));
           bpoints.push_back(currFace->getEdgeBPoint(j));
+
+          ia2[0] = currFace->getEdgeIntensity(j, 0);
+          ia2[1] = currFace->getEdgeIntensity(j, 1);
+          ia2[2] = currFace->getEdgeIntensity(j, 2);
+
           break;
         }
       }
@@ -912,7 +1007,7 @@ void rasterizeFaces(int p, int plane){
       point2[0] = apoints[1];
       point2[1] = bpoints[1];
 
-      drawLineFace(BufferXY, point1, point2, 1, 0, 0, currFace, false);      
+      drawLineFace(BufferXY, point1, point2, currFace, false, ia1, ia2);      
       //drawLineDDA(point1, point2, false, 0);
       //drawLineBresenham(point1, point2, false, 0);
     }
@@ -931,7 +1026,7 @@ void drawScene(){
   updateMinMax();
 
   //sort polys by z 
-  reSortPolys(0);
+  //reSortPolys(0);
   //draw all polys in xy
   for(int i = 0; i < (int) allPoly.size(); i++){
     //sort faces by z
@@ -941,6 +1036,7 @@ void drawScene(){
     //establish faces to rasturize
     allPoly[i]->reMakeFaces(0);
     rasterizeFaces(i, 0);
+    //drawPolygon(i,0);
     //allPoly[i]->printData();
   }
 
@@ -958,13 +1054,13 @@ void drawScene(){
   // //sort polys by x
   // reSortPolys(2);
   // //draw all polys in yz
-  // for(int i = 0; i < (int) allPoly.size(); i++){
+  //for(int i = 0; i < (int) allPoly.size(); i++){
   //   //sort faces by x
-  //   allPoly[i]->reSortFaces(2);
+  //  allPoly[i]->reSortFaces(2);
   //   //draw in yz
   //   drawPolygon(i, 2);
-  //   //allPoly[i]->printData();
-  // }
+  //  allPoly[i]->printData();
+  //}
 
 
   //draw borders  
@@ -1054,7 +1150,7 @@ int main(int argc, char *argv[]){
 
   createMenu();    
 
-  // //print poly data
+  //print poly data
   // for(int i = 0; i < (int)allPoly.size(); i++){
   //   allPoly[i]->printData();
   // }

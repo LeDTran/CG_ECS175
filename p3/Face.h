@@ -16,9 +16,15 @@ class Face{
     vector<float> IpG;
     vector<float> IpB;
 
+
     //list of edge points to use for rasturization
     vector<float> edgeapoints;
     vector<float> edgebpoints;
+
+    //intensity values from gouraud for each edgepoint
+    vector<float> edgeiar;
+    vector<float> edgeiag;
+    vector<float> edgeiab;
 
   public:
     Face();
@@ -36,6 +42,9 @@ class Face{
     int getNumEdgePoints();
     float getEdgeAPoint(int i);
 	float getEdgeBPoint(int i);
+    float getPointIntensity(int i, int color);
+    void setEdgeIntensity(float iar, float iag, float iab);
+    float getEdgeIntensity(int i, int color);
 };
 
 #endif

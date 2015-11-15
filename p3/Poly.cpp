@@ -425,6 +425,23 @@ void Poly::setIp(vector<float> ipr, vector<float>ipg, vector<float> ipb){
   IpB = ipb;
 }
 
+float Poly::getIpMAX(){
+  float ipMAX;
+  ipMAX = IpR[0];
+  for(int i = 0; i < (int)IpR.size(); i++){
+    if(IpR[i] > ipMAX){
+      ipMAX=IpR[i];
+    }
+    if(IpG[i] > ipMAX){
+      ipMAX=IpG[i];
+    }
+    if(IpB[i] > ipMAX){
+      ipMAX=IpB[i];
+    }
+  }
+  //cout << "ipMAX: " << ipMAX << endl;
+}
+
 //int plane: 0=xy, 1=xz, 2=yz
 void Poly::reMakeFaces(int plane){
   //cout << "MAKING FACES" << endl;
@@ -458,7 +475,12 @@ void Poly::reMakeFaces(int plane){
       ipr.push_back(IpR[facep1[i]]);
       ipg.push_back(IpG[facep1[i]]);
       ipb.push_back(IpB[facep1[i]]);
-
+      ipr.push_back(IpR[facep2[i]]);
+      ipg.push_back(IpG[facep2[i]]);
+      ipb.push_back(IpB[facep2[i]]);
+      ipr.push_back(IpR[facep3[i]]);
+      ipg.push_back(IpG[facep3[i]]);
+      ipb.push_back(IpB[facep3[i]]);
 
       Face * myFace = new Face(xs, ys, ipr, ipg, ipb); 
       polyFaces.push_back(myFace);

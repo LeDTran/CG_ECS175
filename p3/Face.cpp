@@ -20,25 +20,10 @@ void Face::printData(){
     cout << apoints[i] << " " << bpoints[i] << endl;
   }
 
-  // cout << "line points" << endl;
-  // for(int i = 0; i < (int)linep1.size(); i++){
-  //   cout << linep1[i] + 1 << " " << linep2[i] + 1 << endl;
-  // }
-
-  // cout << "face points" << endl;
-  // for(int i = 0; i < (int)facep1.size(); i++){
-  //   cout << facep1[i] + 1 << " " << facep2[i] + 1 << " " << facep3[i] + 1 << endl;
-  // }
-
-  // cout << "normal points" << endl;
-  // for(int i = 0; i < (int)facep1.size(); i++){
-  //   cout << fnormx[i] << " " << fnormy[i] << " " << fnormz[i] << " " << endl;
-  // }
-
-  // cout << "Ip" << endl;
-  // for(int i = 0; i < (int)IpR.size(); i++){
-  //       cout << IpR[i] << " " << IpG[i] << " " << IpB[i] << " " << endl;
-  // }
+  cout << "Ip" << endl;
+  for(int i = 0; i < (int)IpR.size(); i++){
+        cout << IpR[i] << " " << IpG[i] << " " << IpB[i] << " " << endl;
+  }
 
   cout << "------------------------------------" << endl;
 }
@@ -91,7 +76,7 @@ void Face::resetEdgePoints(){
 }
 
 void Face::sortEdgePoints(){
-  float i, j, tmpa, tmpb;
+  float i, j, tmpa, tmpb, tmpiar, tmpiag, tmpiab;
   for (i = 1; i < getNumEdgePoints(); i++){
     j = i; 
     while(j > 0 && edgebpoints[j - 1] > edgebpoints[j]){
@@ -101,6 +86,17 @@ void Face::sortEdgePoints(){
       edgebpoints[j] = edgebpoints[j - 1];
       edgeapoints[j - 1] = tmpa;
       edgebpoints[j - 1] = tmpb;
+
+      tmpiar = edgeiar[j];
+      tmpiag = edgeiag[j];
+      tmpiab = edgeiab[j];
+      edgeiar[j] = edgeiar[j-1];
+      edgeiag[j] = edgeiag[j-1];
+      edgeiab[j] = edgeiab[j-1];
+      edgeiar[j - 1] = tmpiar;
+      edgeiag[j - 1] = tmpiag;
+      edgeiab[j - 1] = tmpiab;
+
       j--;
     }
   }
@@ -118,6 +114,17 @@ void Face::sortEdgePoints(){
           edgebpoints[j] = edgebpoints[j - 1];
           edgeapoints[j - 1] = tmpa;
           edgebpoints[j - 1] = tmpb;
+
+          tmpiar = edgeiar[j];
+          tmpiag = edgeiag[j];
+          tmpiab = edgeiab[j];
+          edgeiar[j] = edgeiar[j-1];
+          edgeiag[j] = edgeiag[j-1];
+          edgeiab[j] = edgeiab[j-1];
+          edgeiar[j - 1] = tmpiar;
+          edgeiag[j - 1] = tmpiag;
+          edgeiab[j - 1] = tmpiab;            
+
           j--;
         }
       }
@@ -125,10 +132,10 @@ void Face::sortEdgePoints(){
     }
   }
 
-  // for(int a = 0; a < (int)edgeapoints.size(); a++){
-  //   cout << edgeapoints[a] << ", " << edgebpoints[a] << endl;
-  // }
-  // cout << "----------------------" << endl;
+//   for(int a = 0; a < (int)edgeapoints.size(); a++){
+//     cout << edgeapoints[a] << ", " << edgebpoints[a] << " : " << edgeiar[a] << " " << edgeiag[a] << " " << edgeiab[a] <<endl;
+//   }
+//   cout << "----------------------" << endl;
 }
 
 // void Face::sortEdgePoints(){
@@ -179,3 +186,36 @@ float Face::getEdgeBPoint(int i){
   return edgebpoints[i];
 }
 
+//color: 0 = red, 1 = green, 2 = blue
+float Face::getPointIntensity(int i, int color){
+  if(color == 0){
+    return IpR[i];
+  }
+  else if(color == 1){
+    return IpG[i];
+  }
+  else if(color == 2){
+    return IpB[i];
+  }
+  return 0;
+}
+
+void Face::setEdgeIntensity(float iar, float iag, float iab){
+  edgeiar.push_back(iar);
+  edgeiag.push_back(iag);
+  edgeiab.push_back(iab);
+}
+
+//color: 0 = red, 1 = green, 2 = blue
+float Face::getEdgeIntensity(int i, int color){
+  if(color == 0){
+    return edgeiar[i];
+  }
+  else if(color == 1){
+    return edgeiag[i];
+  }
+  else if(color == 2){
+    return edgeiab[i];
+  }
+  return 0;
+}

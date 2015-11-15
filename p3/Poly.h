@@ -82,6 +82,7 @@ class Poly{
     int getNumFaces();
     void reSortFaces(int plane);
     void setIp(vector<float> ipr, vector<float>ipg, vector<float> ipb);
+    float getIpMAX(); 
     void reMakeFaces(int plane);
     Face* getFace(int i);
 };
