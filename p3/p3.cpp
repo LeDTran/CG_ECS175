@@ -14,6 +14,7 @@ int Win1, Win2, Win3;
 
 vector<Poly *> allPoly;
 bool isAnimating;
+bool isHalfTone;
 
 //light source position xyz
 float LightPX, LightPY, LightPZ;
@@ -475,7 +476,10 @@ void updateRotate(int i){
       100, 100, 100,
       2);
     }
-    drawScene();  
+    drawScene(); 
+    if(isHalfTone){
+      halfTone();
+    } 
     //draw rotation axis
     float point1[2];
     float point2[2];
@@ -662,8 +666,72 @@ void setValues(){
   IL[2]=1;
 
   PhongConst=2;
+  calculateC();
+}
+
+void resetValues(){  
+  cout << "Light source position:" << endl;
+  cout << "x: ";
+  cin >> LightPX;
+  cout << "y: ";
+  cin >> LightPY;
+  cout << "z: ";
+  cin >> LightPZ;
+
+  cout << "Viewing position:" << endl;
+  cout << "x: ";
+  cin >> ViewPX;
+  cout << "y: ";
+  cin >> ViewPY;
+  cout << "z: ";
+  cin >> ViewPZ;
+
+  cout << "Ambient [0,1]: " << endl;
+  cout << "kaRed: ";
+  cin >> Ka[0];
+  cout << "kaGreen: ";
+  cin >> Ka[1];
+  cout << "kaBlue: ";
+  cin >> Ka[2];
+
+  cout << "Diffuse [0,1]: " << endl;
+  cout << "kdRed: ";
+  cin >> Kd[0];
+  cout << "kdGreen: ";
+  cin >> Kd[1];
+  cout << "kdBlue: ";
+  cin >> Kd[2];
+
+  cout << "Specular [0,1]: " << endl;
+  cout << "ksRed: ";
+  cin >> Ks[0];
+  cout << "ksGreen: ";
+  cin >> Ks[1];
+  cout << "ksBlue: ";
+  cin >> Ks[2];
+
+  cout << "IA [0,1]: " << endl;
+  cout << "IARed: ";
+  cin >> IA[0];
+  cout << "IAGreen: ";
+  cin >> IA[1];
+  cout << "IABlue: ";
+  cin >> IA[2];
+
+  cout << "IL [0,1]: " << endl;
+  cout << "ILRed: ";
+  cin >> IL[0];
+  cout << "ILGreen: ";
+  cin >> IL[1];
+  cout << "ILBlue: ";
+  cin >> IL[2];
+
+  cout << "Phong Constant: ";
+  cin >> PhongConst;
 
   calculateC();
+
+  cout << "Values reset" << endl;
 }
 
 //find normal of given vertex point
@@ -1121,6 +1189,192 @@ void drawScene(){
   glutPostRedisplay();
 }
 
+//int color: 0 = red, 1 = green, 2 = blue
+float getAvgIntensity(float *Buffer, int *a, int *b, int color){
+  //int pixnum = a + b*300;
+  float avg = 0;
+  //red
+  avg = avg + Buffer[color + (a[0] + b[0]*300)*3];
+  avg = avg + Buffer[color + (a[0] + b[1]*300)*3];
+  avg = avg + Buffer[color + (a[0] + b[2]*300)*3];
+  avg = avg + Buffer[color + (a[1] + b[0]*300)*3];
+  avg = avg + Buffer[color + (a[1] + b[1]*300)*3];
+  avg = avg + Buffer[color + (a[1] + b[2]*300)*3];
+  avg = avg + Buffer[color + (a[2] + b[0]*300)*3];
+  avg = avg + Buffer[color + (a[2] + b[1]*300)*3];
+  avg = avg + Buffer[color + (a[2] + b[2]*300)*3];
+
+  return avg;
+}
+
+void drawMegapixel(float *Buffer, int *a, int *b, int code, int color){
+  switch(code){
+    case 0:
+      Buffer[color + (a[0] + b[0]*300)*3] = 0;
+      Buffer[color + (a[0] + b[1]*300)*3] = 0;
+      Buffer[color + (a[0] + b[2]*300)*3] = 0;
+      Buffer[color + (a[1] + b[0]*300)*3] = 0;
+      Buffer[color + (a[1] + b[1]*300)*3] = 0;
+      Buffer[color + (a[1] + b[2]*300)*3] = 0;
+      Buffer[color + (a[2] + b[0]*300)*3] = 0;
+      Buffer[color + (a[2] + b[1]*300)*3] = 0;
+      Buffer[color + (a[2] + b[2]*300)*3] = 0;
+      break;
+    case 1:
+      Buffer[color + (a[0] + b[0]*300)*3] = 1;
+      Buffer[color + (a[0] + b[1]*300)*3] = 0;
+      Buffer[color + (a[0] + b[2]*300)*3] = 0;
+      Buffer[color + (a[1] + b[0]*300)*3] = 0;
+      Buffer[color + (a[1] + b[1]*300)*3] = 0;
+      Buffer[color + (a[1] + b[2]*300)*3] = 0;
+      Buffer[color + (a[2] + b[0]*300)*3] = 0;
+      Buffer[color + (a[2] + b[1]*300)*3] = 0;
+      Buffer[color + (a[2] + b[2]*300)*3] = 0;
+      break;
+    case 2:
+      Buffer[color + (a[0] + b[0]*300)*3] = 1;
+      Buffer[color + (a[0] + b[1]*300)*3] = 1;
+      Buffer[color + (a[0] + b[2]*300)*3] = 0;
+      Buffer[color + (a[1] + b[0]*300)*3] = 0;
+      Buffer[color + (a[1] + b[1]*300)*3] = 0;
+      Buffer[color + (a[1] + b[2]*300)*3] = 0;
+      Buffer[color + (a[2] + b[0]*300)*3] = 0;
+      Buffer[color + (a[2] + b[1]*300)*3] = 0;
+      Buffer[color + (a[2] + b[2]*300)*3] = 0;
+      break;
+    case 3:
+      Buffer[color + (a[0] + b[0]*300)*3] = 1;
+      Buffer[color + (a[0] + b[1]*300)*3] = 1;
+      Buffer[color + (a[0] + b[2]*300)*3] = 1;
+      Buffer[color + (a[1] + b[0]*300)*3] = 0;
+      Buffer[color + (a[1] + b[1]*300)*3] = 0;
+      Buffer[color + (a[1] + b[2]*300)*3] = 0;
+      Buffer[color + (a[2] + b[0]*300)*3] = 0;
+      Buffer[color + (a[2] + b[1]*300)*3] = 0;
+      Buffer[color + (a[2] + b[2]*300)*3] = 0;
+      break;
+    case 4:
+      Buffer[color + (a[0] + b[0]*300)*3] = 1;
+      Buffer[color + (a[0] + b[1]*300)*3] = 1;
+      Buffer[color + (a[0] + b[2]*300)*3] = 1;
+      Buffer[color + (a[1] + b[0]*300)*3] = 1;
+      Buffer[color + (a[1] + b[1]*300)*3] = 0;
+      Buffer[color + (a[1] + b[2]*300)*3] = 0;
+      Buffer[color + (a[2] + b[0]*300)*3] = 0;
+      Buffer[color + (a[2] + b[1]*300)*3] = 0;
+      Buffer[color + (a[2] + b[2]*300)*3] = 0;
+      break;
+    case 5:
+      Buffer[color + (a[0] + b[0]*300)*3] = 1;
+      Buffer[color + (a[0] + b[1]*300)*3] = 1;
+      Buffer[color + (a[0] + b[2]*300)*3] = 1;
+      Buffer[color + (a[1] + b[0]*300)*3] = 1;
+      Buffer[color + (a[1] + b[1]*300)*3] = 1;
+      Buffer[color + (a[1] + b[2]*300)*3] = 0;
+      Buffer[color + (a[2] + b[0]*300)*3] = 0;
+      Buffer[color + (a[2] + b[1]*300)*3] = 0;
+      Buffer[color + (a[2] + b[2]*300)*3] = 0;
+      break;
+    case 6:
+      Buffer[color + (a[0] + b[0]*300)*3] = 1;
+      Buffer[color + (a[0] + b[1]*300)*3] = 1;
+      Buffer[color + (a[0] + b[2]*300)*3] = 1;
+      Buffer[color + (a[1] + b[0]*300)*3] = 1;
+      Buffer[color + (a[1] + b[1]*300)*3] = 1;
+      Buffer[color + (a[1] + b[2]*300)*3] = 1;
+      Buffer[color + (a[2] + b[0]*300)*3] = 0;
+      Buffer[color + (a[2] + b[1]*300)*3] = 0;
+      Buffer[color + (a[2] + b[2]*300)*3] = 0;    
+    case 7:
+      Buffer[color + (a[0] + b[0]*300)*3] = 1;
+      Buffer[color + (a[0] + b[1]*300)*3] = 1;
+      Buffer[color + (a[0] + b[2]*300)*3] = 1;
+      Buffer[color + (a[1] + b[0]*300)*3] = 1;
+      Buffer[color + (a[1] + b[1]*300)*3] = 1;
+      Buffer[color + (a[1] + b[2]*300)*3] = 1;
+      Buffer[color + (a[2] + b[0]*300)*3] = 1;
+      Buffer[color + (a[2] + b[1]*300)*3] = 0;
+      Buffer[color + (a[2] + b[2]*300)*3] = 0;
+    case 8:
+      Buffer[color + (a[0] + b[0]*300)*3] = 1;
+      Buffer[color + (a[0] + b[1]*300)*3] = 1;
+      Buffer[color + (a[0] + b[2]*300)*3] = 1;
+      Buffer[color + (a[1] + b[0]*300)*3] = 1;
+      Buffer[color + (a[1] + b[1]*300)*3] = 1;
+      Buffer[color + (a[1] + b[2]*300)*3] = 1;
+      Buffer[color + (a[2] + b[0]*300)*3] = 1;
+      Buffer[color + (a[2] + b[1]*300)*3] = 1;
+      Buffer[color + (a[2] + b[2]*300)*3] = 0;
+    case 9:
+      Buffer[color + (a[0] + b[0]*300)*3] = 1;
+      Buffer[color + (a[0] + b[1]*300)*3] = 1;
+      Buffer[color + (a[0] + b[2]*300)*3] = 1;
+      Buffer[color + (a[1] + b[0]*300)*3] = 1;
+      Buffer[color + (a[1] + b[1]*300)*3] = 1;
+      Buffer[color + (a[1] + b[2]*300)*3] = 1;
+      Buffer[color + (a[2] + b[0]*300)*3] = 1;
+      Buffer[color + (a[2] + b[1]*300)*3] = 1;
+      Buffer[color + (a[2] + b[2]*300)*3] = 1;
+    default:
+      break;
+  }
+}
+
+void halfTone(){
+  //need go by chunks of 3*3 pixels = 9 pixel square
+  // a0b2 a1b2 a2b2
+  // a0b1 a1b1 a2b1
+  // a0b0 a1b0 a2b0
+
+  int a[3], b[3];
+  //a points
+  for(int i = 0; i < 300; i = i + 3){
+    a[0] = i + 0;
+    a[1] = i + 1;
+    a[2] = i + 2;
+    //b points
+    for(int j = 0; j < 300; j = j + 3){
+      b[0] = j + 0;
+      b[1] = j + 1;
+      b[2] = j + 2;
+
+      //r g b
+      float red, green, blue;
+      int code;
+      red = getAvgIntensity(BufferXY, a, b, 0);
+      green = getAvgIntensity(BufferXY, a, b, 1);
+      blue = getAvgIntensity(BufferXY, a, b, 2);
+      code = (int)round((red + green + blue) / 3);
+      drawMegapixel(BufferXY, a, b, code, 0);
+      drawMegapixel(BufferXY, a, b, code, 1);
+      drawMegapixel(BufferXY, a, b, code, 2);
+
+
+      red = getAvgIntensity(BufferXZ, a, b, 0);
+      green = getAvgIntensity(BufferXZ, a, b, 1);
+      blue = getAvgIntensity(BufferXZ, a, b, 2);
+      code = (int)round((red + green + blue) / 3);
+      drawMegapixel(BufferXZ, a, b, code, 0);
+      drawMegapixel(BufferXZ, a, b, code, 1);
+      drawMegapixel(BufferXZ, a, b, code, 2);
+
+
+      red = getAvgIntensity(BufferYZ, a, b, 0);
+      green = getAvgIntensity(BufferYZ, a, b, 1);
+      blue = getAvgIntensity(BufferYZ, a, b, 2);
+      code = (int)round((red + green + blue) / 3);
+      drawMegapixel(BufferYZ, a, b, code, 0);
+      drawMegapixel(BufferYZ, a, b, code, 1);
+      drawMegapixel(BufferYZ, a, b, code, 2);
+    }
+  }
+  glutSetWindow(Win1);
+  glutPostRedisplay();
+  glutSetWindow(Win2);
+  glutPostRedisplay();
+  glutSetWindow(Win3);
+  glutPostRedisplay();
+}
 
 int main(int argc, char *argv[]){
 
@@ -1179,6 +1433,7 @@ int main(int argc, char *argv[]){
   glutDisplayFunc(display3);
 
   drawScene();
+  //halfTone();
 
   createMenu();    
 

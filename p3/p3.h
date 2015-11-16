@@ -13,6 +13,7 @@ using namespace std;
 // extern vector<int *> allLines;
 extern vector<Poly *> allPoly;
 extern bool isAnimating;
+extern bool isHalfTone;
 extern float* BufferXY;
 extern float* BufferXZ;
 extern float* BufferYZ;
@@ -42,6 +43,7 @@ void startAnimation();
 void readData();
 void calculateC();
 void setValues();
+void resetValues();
 float phongLighting(int i, int j);
 void setIpValues();
 float gouraudShading(int *p1, int *p2, float *pa, float i1, float i2);
@@ -49,5 +51,8 @@ void drawLineFace(float *Buffer, float * fp1, float *fp2, Face* currFace, bool i
 void drawFace(Face* currFace, int plane);
 void rasterizeFaces(int p, int plane);
 void drawScene();
+float getAvgIntensity(float *Buffer, int *a, int *b, int color);
+void drawMegapixel(float *Buffer, int *a, int *b, int code);
+void halfTone();
 
 
