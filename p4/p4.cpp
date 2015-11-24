@@ -13,8 +13,8 @@ vector<BSpline *> allBSpline;
 bool isAnimating;
 
 void drawPix(float *Buffer, int x, int y, float red, float green, float blue){
-  if(0 <= x && x <= 200 && 0 <= y && y <= 200){
-    int pixnum = x + y*200;
+  if(0 <= x && x <= 400 && 0 <= y && y <= 400){
+    int pixnum = x + y*400;
     //R
     Buffer[0 + pixnum*3] = red;
     //G
@@ -152,6 +152,7 @@ void updateMinMax(){
 
   MASTERMIN = mastermin;
   MASTERMAX = mastermax;
+  cout << "MASTERMIN: " << mastermin << ", MASTERMAX: " << MASTERMAX << endl;
 }
 
 float getRatio(float coord, char axis){
@@ -159,11 +160,13 @@ float getRatio(float coord, char axis){
   if(axis == 'x'){
     ratio = (coord - XMIN) / (MASTERMAX - MASTERMIN);
     newcoord = 399*ratio;
+    //cout << "newcoord: " << newcoord << endl;; 
     return newcoord;
   }
   if(axis == 'y'){
     ratio = (coord - YMIN) / (MASTERMAX - MASTERMIN);
     newcoord = 399*ratio;
+    //cout << "newcoord: " << newcoord << endl; 
     return newcoord;
   }
   return coord;
@@ -232,34 +235,61 @@ void drawLineDDA(float *Buffer, float * fp1, float *fp2, float r, float g, float
   }  
 }
 
-// void drawPolygon(int p){
-//   for(int i = 0; i < allPoly[p]->getNumLineP(); i++){
-//     int linepoint1 = allPoly[p]->getLineP1(i);
-//     int linepoint2 = allPoly[p]->getLineP2(i);
+void drawBSpline(int p){
+  //cout << "drawing bspline" << endl;
+  for(int i = 0; i < (int) allBSpline[p]->getNumCtrlPoints()-1; i++){
+    //get coords
+    float point1[2];
+    point1[0] = allBSpline[p]->getCtrlXPoint(i);
+    point1[1] = allBSpline[p]->getCtrlYPoint(i);
 
-//     //get coords1 xyz1
-//     float lpoint1[3];
-//     lpoint1[0] = allPoly[p]->getXPoint(linepoint1);
-//     lpoint1[1] = allPoly[p]->getYPoint(linepoint1);
-//     lpoint1[2] = allPoly[p]->getZPoint(linepoint1);
+    //get next coord
+    float point2[2];
+    int j = i + 1;
+    // if(i == (allBezier[p]->getNumCtrlPoints()) - 1){
+    //   j = 0;
+    // }
+    // else{
+    //   j = i + 1;
+    // }
+    point2[0] = allBSpline[p]->getCtrlXPoint(j);
+    point2[1] = allBSpline[p]->getCtrlYPoint(j);
 
-//     //get coords2 xyz2
-//     float lpoint2[3];
-//     lpoint2[0] = allPoly[p]->getXPoint(linepoint2);
-//     lpoint2[1] = allPoly[p]->getYPoint(linepoint2);
-//     lpoint2[2] = allPoly[p]->getZPoint(linepoint2);
+    point1[0] = getRatio(point1[0], 'x');
+    point1[1] = getRatio(point1[1], 'y');
+    point2[0] = getRatio(point2[0], 'x');
+    point2[1] = getRatio(point2[1], 'y');
+    drawLineDDA(PixelBuffer, point1, point2, 0, 1 , 0);
+  }
+}
 
-//     float point1[2];
-//     float point2[2];
+void drawBezier(int p){
+  //cout << "drawing bezier" << endl;
+  for(int i = 0; i < (int) allBezier[p]->getNumCtrlPoints()-1; i++){
+    //get coords
+    float point1[2];
+    point1[0] = allBezier[p]->getCtrlXPoint(i);
+    point1[1] = allBezier[p]->getCtrlYPoint(i);
 
-//     //plot XY
-//     point1[0] = getRatio(lpoint1[0], 'x');
-//     point1[1] = getRatio(lpoint1[1], 'y');
-//     point2[0] = getRatio(lpoint2[0], 'x');
-//     point2[1] = getRatio(lpoint2[1], 'y');
-//     drawLineDDA(BufferXY, point1, point2, 1, 0, 0);
-//   }
-// }
+    //get next coord
+    float point2[2];
+    int j = i + 1;
+    // if(i == (allBezier[p]->getNumCtrlPoints()) - 1){
+    //   j = 0;
+    // }
+    // else{
+    //   j = i + 1;
+    // }
+    point2[0] = allBezier[p]->getCtrlXPoint(j);
+    point2[1] = allBezier[p]->getCtrlYPoint(j);
+
+    point1[0] = getRatio(point1[0], 'x');
+    point1[1] = getRatio(point1[1], 'y');
+    point2[0] = getRatio(point2[0], 'x');
+    point2[1] = getRatio(point2[1], 'y');
+    drawLineDDA(PixelBuffer, point1, point2, 1, 0 , 0);
+  }
+}
 
 
 //used to redraw scene, with updated lines and polygons
@@ -268,17 +298,19 @@ void drawScene(){
   for(int i = 0; i < 400*400*3; i++){
       PixelBuffer[i] = 0;
   }
-  //updateMinMax();
+  updateMinMax();
 
   //draw all Bezier curves
   for(int i = 0; i < (int) allBezier.size(); i++){
     //drawPolygon(i);
+    drawBezier(i);
     allBezier[i]->printData();
   }
 
   //draw all BSpline curves
   for(int i = 0; i < (int) allBSpline.size(); i++){
-    allBSpline[i]->printData()  ;
+    drawBSpline(i);
+    allBSpline[i]->printData();
   }
 
   // //draw borders  
