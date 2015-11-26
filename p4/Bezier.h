@@ -10,6 +10,8 @@ class Bezier{
     vector<float> ctrlxpoints;
     vector<float> ctrlypoints;
 
+    float resolution;
+
   public:
     Bezier();
     Bezier(vector<float> ctrlxs, vector<float> ctrlys);
@@ -17,6 +19,8 @@ class Bezier{
     float getCtrlXPoint(int i);
     float getCtrlYPoint(int i);
     float getNumCtrlPoints();
+    float getResolution();
+    void setResolution(float r);
 };
 
 #endif

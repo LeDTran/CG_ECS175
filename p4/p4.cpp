@@ -263,8 +263,7 @@ void drawBSpline(int p){
   }
 }
 
-void drawBezier(int p){
-  //cout << "drawing bezier" << endl;
+void drawBezierControl(int p){
   for(int i = 0; i < (int) allBezier[p]->getNumCtrlPoints()-1; i++){
     //get coords
     float point1[2];
@@ -287,6 +286,80 @@ void drawBezier(int p){
     point1[1] = getRatio(point1[1], 'y');
     point2[0] = getRatio(point2[0], 'x');
     point2[1] = getRatio(point2[1], 'y');
+    drawLineDDA(PixelBuffer, point1, point2, 0.5, 0 , 0);
+  }
+}
+
+//p = which bezier curve
+void drawBezier(int p){
+  //cout << "drawing bezier" << endl;
+  float reso = allBezier[p]->getResolution();
+  float n = allBezier[p]->getNumCtrlPoints();
+
+  vector<float> curvebx;
+  vector<float> curveby;
+
+  //num of points on curve dependent on resolution
+  for(int k = 0; k <= reso; k++){
+  //for(int k = reso/2; k < (reso/2)+1; k++){
+    float t = k/reso;
+
+    float bx[100][100];
+    float by[100][100];
+    //load in control points
+    for(int a = 0; a < n; a++){
+      bx[0][a] = getRatio(allBezier[p]->getCtrlXPoint(a), 'x');
+      by[0][a] = getRatio(allBezier[p]->getCtrlYPoint(a), 'y');
+      //bx[0][a] = allBezier[p]->getCtrlXPoint(a);
+      //by[0][a] = allBezier[p]->getCtrlYPoint(a);
+      //cout << "bx: " << allBezier[p]->getCtrlXPoint(a) << ", by: " << allBezier[p]->getCtrlYPoint(a) << endl;
+      //cout << "bx: " << bx[0][a] << ", by: " << by[0][a] << endl;
+    }
+    //cout << "------------" << endl;
+
+    for(int j = 1; j < n; j++){
+      for(int i = 0; i < (n-j); i++){
+        bx[j][i] = ((1-t)*bx[j-1][i]) + (t*bx[j-1][i+1]);
+        by[j][i] = ((1-t)*by[j-1][i]) + (t*by[j-1][i+1]);
+        //cout << "j: " << j << ", i:" << i << endl;
+        //cout << "bx: " << bx[j][i] << ", by: " << by[j][i] << endl;
+      }
+      //cout << "----" << endl;
+    }
+
+    //cout << "n: " << n << endl;
+    //float x = bx[(int)(n-1)][0];
+    // float y = by[(int)n-1][0];
+    // cout << "x: " << x << ", y: " << y << endl;
+    curvebx.push_back(bx[(int)(n-1)][0]);
+    curveby.push_back(by[(int)(n-1)][0]);
+    cout << "k: " << k << ", t: " << t << ", x: " << curvebx[k] << ", y: " << curveby[k] << endl;
+  }
+
+  //draw curve
+  for(int i = 0; i < (int) curvebx.size()-1; i++){
+    //get coords
+    float point1[2];
+    point1[0] = curvebx[i];
+    point1[1] = curveby[i];
+
+    //cout << "x: " << curvebx[i] << ", y: " << curveby[i] << endl;
+    //get next coord
+    float point2[2];
+    int j = i + 1;
+    // if(i == (allBezier[p]->getNumCtrlPoints()) - 1){
+    //   j = 0;
+    // }
+    // else{
+    //   j = i + 1;
+    // }
+    point2[0] = curvebx[j];
+    point2[1] = curveby[j];
+
+    // point1[0] = getRatio(point1[0], 'x');
+    // point1[1] = getRatio(point1[1], 'y');
+    // point2[0] = getRatio(point2[0], 'x');
+    // point2[1] = getRatio(point2[1], 'y');
     drawLineDDA(PixelBuffer, point1, point2, 1, 0 , 0);
   }
 }
@@ -303,14 +376,15 @@ void drawScene(){
   //draw all Bezier curves
   for(int i = 0; i < (int) allBezier.size(); i++){
     //drawPolygon(i);
+    drawBezierControl(i);
     drawBezier(i);
-    allBezier[i]->printData();
+    //allBezier[i]->printData();
   }
 
   //draw all BSpline curves
   for(int i = 0; i < (int) allBSpline.size(); i++){
     drawBSpline(i);
-    allBSpline[i]->printData();
+    //allBSpline[i]->printData();
   }
 
   // //draw borders  
@@ -402,18 +476,25 @@ void readData(){
         }
 
         //read in knot value if there is one
-        //then create bspline object
+        float numknots = numpoints + k + 1;
+        vector<float> knotvalues;
+        float currknot;
         if(knotchar == 'T'){
-          float knot;
-          getline(myfile, line);
-          istringstream iss5(line);
-          iss5 >> knot;
-     
-          BSpline * myBSpline = new BSpline(ctrlxs, ctrlys, k, knotchar, knot); 
+          for(int i = 0; i < numknots; i++){
+            getline(myfile, line);
+            istringstream iss5(line);
+            iss5 >> currknot;
+            knotvalues.push_back(currknot);
+          }
+          BSpline * myBSpline = new BSpline(ctrlxs, ctrlys, k, knotvalues); 
           allBSpline.push_back(myBSpline);
         }
+        //if not knot values, need to generate some
         else if (knotchar == 'F'){
-          BSpline * myBSpline = new BSpline(ctrlxs, ctrlys, k, knotchar, 0); 
+            for(int i = 0; i < numknots; i++){
+            knotvalues.push_back((float)i);
+          }
+          BSpline * myBSpline = new BSpline(ctrlxs, ctrlys, k, knotvalues); 
           allBSpline.push_back(myBSpline);
         }
       }

@@ -26,6 +26,7 @@ void updateMinMax();
 float getRatio(float coord, char axis);
 void drawLineDDA(float *Buffer, float *fp1, float *fp2, float r, float g, float b);
 void drawBSpline(int p);
+void drawBezierControl(int p);
 void drawBezier(int p);
 void drawScene();
 void readData();

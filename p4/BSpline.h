@@ -12,12 +12,13 @@ class BSpline{
 
    	float kvalue;
 
-   	bool haveknot;
-   	float knotvalue;
+   	vector<float> knots;
+
+    int resolution;
 
   public:
     BSpline();
-    BSpline(vector<float> ctrlxs, vector<float> ctrlys, float k, char knotchar, float knot);
+    BSpline(vector<float> ctrlxs, vector<float> ctrlys, float k, vector<float> knotvalue);
     void printData();
     float getCtrlXPoint(int i);
     float getCtrlYPoint(int i);

@@ -7,6 +7,8 @@ Bezier::Bezier(){
 Bezier::Bezier(vector<float> ctrlxs, vector<float> ctrlys){
 	ctrlxpoints = ctrlxs;
 	ctrlypoints = ctrlys;
+
+  resolution = 10;
 }
 
 void Bezier::printData(){
@@ -29,4 +31,12 @@ float Bezier::getCtrlYPoint(int i){
 
 float Bezier::getNumCtrlPoints(){
   return ctrlxpoints.size();
+}
+
+float Bezier::getResolution(){
+  return resolution;
+}
+
+void Bezier::setResolution(float r){
+  resolution = r;
 }

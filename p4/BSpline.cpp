@@ -4,18 +4,14 @@ BSpline::BSpline(){
 	//ctr
 }
 
-BSpline::BSpline(vector<float> ctrlxs, vector<float> ctrlys, float k, char knotchar, float knot){
+BSpline::BSpline(vector<float> ctrlxs, vector<float> ctrlys, float k, vector<float> knotvalues){
 	ctrlxpoints = ctrlxs;
 	ctrlypoints = ctrlys;
 
   kvalue = k;
-  if(knotchar == 'T'){
-    haveknot = true;
-    knotvalue = knot;
-  }
-  else if (knotchar == 'F'){
-    haveknot = false;
-  }
+  knots = knotvalues;
+
+  resolution = 10;
 }
 
 void BSpline::printData(){
@@ -24,7 +20,11 @@ void BSpline::printData(){
     cout << ctrlxpoints[i] << " " << ctrlypoints[i] << endl;
   }
 
-  cout << "k: " << kvalue << ", haveknot: " << haveknot << ", knot: " << knotvalue << endl;
+  cout << "k: " << kvalue << endl;
+
+  for(int i = 0; i < (int)knots.size(); i++){
+    cout << knots[i] << endl;
+  }
 
   cout << "------------------------------------" << endl;
 }
