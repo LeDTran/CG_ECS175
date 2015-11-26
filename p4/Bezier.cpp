@@ -8,7 +8,7 @@ Bezier::Bezier(vector<float> ctrlxs, vector<float> ctrlys){
 	ctrlxpoints = ctrlxs;
 	ctrlypoints = ctrlys;
 
-  resolution = 10;
+  resolution = 25;
 }
 
 void Bezier::printData(){

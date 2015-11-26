@@ -235,7 +235,7 @@ void drawLineDDA(float *Buffer, float * fp1, float *fp2, float r, float g, float
   }  
 }
 
-void drawBSpline(int p){
+void drawBSplineControl(int p){
   //cout << "drawing bspline" << endl;
   for(int i = 0; i < (int) allBSpline[p]->getNumCtrlPoints()-1; i++){
     //get coords
@@ -246,12 +246,6 @@ void drawBSpline(int p){
     //get next coord
     float point2[2];
     int j = i + 1;
-    // if(i == (allBezier[p]->getNumCtrlPoints()) - 1){
-    //   j = 0;
-    // }
-    // else{
-    //   j = i + 1;
-    // }
     point2[0] = allBSpline[p]->getCtrlXPoint(j);
     point2[1] = allBSpline[p]->getCtrlYPoint(j);
 
@@ -259,9 +253,13 @@ void drawBSpline(int p){
     point1[1] = getRatio(point1[1], 'y');
     point2[0] = getRatio(point2[0], 'x');
     point2[1] = getRatio(point2[1], 'y');
-    drawLineDDA(PixelBuffer, point1, point2, 0, 1 , 0);
+    drawLineDDA(PixelBuffer, point1, point2, 0, 0.3 , 0);
   }
 }
+
+void drawBSpline(int p){
+}
+
 
 void drawBezierControl(int p){
   for(int i = 0; i < (int) allBezier[p]->getNumCtrlPoints()-1; i++){
@@ -273,12 +271,6 @@ void drawBezierControl(int p){
     //get next coord
     float point2[2];
     int j = i + 1;
-    // if(i == (allBezier[p]->getNumCtrlPoints()) - 1){
-    //   j = 0;
-    // }
-    // else{
-    //   j = i + 1;
-    // }
     point2[0] = allBezier[p]->getCtrlXPoint(j);
     point2[1] = allBezier[p]->getCtrlYPoint(j);
 
@@ -286,7 +278,7 @@ void drawBezierControl(int p){
     point1[1] = getRatio(point1[1], 'y');
     point2[0] = getRatio(point2[0], 'x');
     point2[1] = getRatio(point2[1], 'y');
-    drawLineDDA(PixelBuffer, point1, point2, 0.5, 0 , 0);
+    drawLineDDA(PixelBuffer, point1, point2, 0.3, 0 , 0);
   }
 }
 
@@ -294,7 +286,8 @@ void drawBezierControl(int p){
 void drawBezier(int p){
   //cout << "drawing bezier" << endl;
   float reso = allBezier[p]->getResolution();
-  float n = allBezier[p]->getNumCtrlPoints();
+  //n = total control points - 1
+  float n = allBezier[p]->getNumCtrlPoints()-1;
 
   vector<float> curvebx;
   vector<float> curveby;
@@ -307,7 +300,7 @@ void drawBezier(int p){
     float bx[100][100];
     float by[100][100];
     //load in control points
-    for(int a = 0; a < n; a++){
+    for(int a = 0; a <= n; a++){
       bx[0][a] = getRatio(allBezier[p]->getCtrlXPoint(a), 'x');
       by[0][a] = getRatio(allBezier[p]->getCtrlYPoint(a), 'y');
       //bx[0][a] = allBezier[p]->getCtrlXPoint(a);
@@ -317,8 +310,8 @@ void drawBezier(int p){
     }
     //cout << "------------" << endl;
 
-    for(int j = 1; j < n; j++){
-      for(int i = 0; i < (n-j); i++){
+    for(int j = 1; j <= n; j++){
+      for(int i = 0; i <= (n-j); i++){
         bx[j][i] = ((1-t)*bx[j-1][i]) + (t*bx[j-1][i+1]);
         by[j][i] = ((1-t)*by[j-1][i]) + (t*by[j-1][i+1]);
         //cout << "j: " << j << ", i:" << i << endl;
@@ -331,9 +324,9 @@ void drawBezier(int p){
     //float x = bx[(int)(n-1)][0];
     // float y = by[(int)n-1][0];
     // cout << "x: " << x << ", y: " << y << endl;
-    curvebx.push_back(bx[(int)(n-1)][0]);
-    curveby.push_back(by[(int)(n-1)][0]);
-    cout << "k: " << k << ", t: " << t << ", x: " << curvebx[k] << ", y: " << curveby[k] << endl;
+    curvebx.push_back(bx[(int)(n)][0]);
+    curveby.push_back(by[(int)(n)][0]);
+    //cout << "k: " << k << ", t: " << t << ", x: " << curvebx[k] << ", y: " << curveby[k] << endl;
   }
 
   //draw curve
@@ -383,7 +376,8 @@ void drawScene(){
 
   //draw all BSpline curves
   for(int i = 0; i < (int) allBSpline.size(); i++){
-    drawBSpline(i);
+    drawBSplineControl(i);
+    //drawBSpline(i);
     //allBSpline[i]->printData();
   }
 
