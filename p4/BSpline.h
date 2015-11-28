@@ -14,7 +14,7 @@ class BSpline{
 
    	vector<float> knots;
 
-    int resolution;
+    float resolution;
 
   public:
     BSpline();
@@ -23,6 +23,11 @@ class BSpline{
     float getCtrlXPoint(int i);
     float getCtrlYPoint(int i);
     float getNumCtrlPoints();
+    float getResolution();
+    float getKValue();
+    float getUBar(float k, float n, float a);
+    float getI(float ubar);
+    vector<float> getKnots();
 };
 
 #endif
