@@ -155,7 +155,6 @@ void insertBSplinePoint(){
     allBSpline[curveselection]->insertCtrlPoint(pos, x, y);
     allBSpline[curveselection]->addKnot();
   }
-
 }
 
 void deleteBezierPoint(){
