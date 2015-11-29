@@ -8,7 +8,7 @@ Bezier::Bezier(vector<float> ctrlxs, vector<float> ctrlys){
 	ctrlxpoints = ctrlxs;
 	ctrlypoints = ctrlys;
 
-  resolution = 25;
+  resolution = 10;
 }
 
 void Bezier::printData(){
@@ -33,6 +33,17 @@ float Bezier::getNumCtrlPoints(){
   return ctrlxpoints.size();
 }
 
+void Bezier::addCtrlPoint(float x, float y){
+  ctrlxpoints.push_back(x);
+  ctrlypoints.push_back(y);
+}
+
+void Bezier::deleteCtrlPoint(int pointselection){
+  ctrlxpoints.erase(ctrlxpoints.begin()+pointselection);
+  ctrlypoints.erase(ctrlypoints.begin()+pointselection);
+}
+
+
 float Bezier::getResolution(){
   return resolution;
 }
@@ -40,3 +51,4 @@ float Bezier::getResolution(){
 void Bezier::setResolution(float r){
   resolution = r;
 }
+

@@ -23,11 +23,18 @@ class BSpline{
     float getCtrlXPoint(int i);
     float getCtrlYPoint(int i);
     float getNumCtrlPoints();
+    void addCtrlPoint(float x, float y);
+    void deleteCtrlPoint(int pointselection);
+
     float getResolution();
+    void setResolution(float r);
     float getKValue();
     float getUBar(float k, float n, float a);
     float getI(float ubar);
+
     vector<float> getKnots();
+    void addKnot();
+    void deleteKnot();
 };
 
 #endif

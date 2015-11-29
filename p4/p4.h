@@ -6,6 +6,7 @@
 #include <vector>
 #include "Bezier.h"
 #include "BSpline.h"
+#include "UI.h"
 //#include "UI.h"
 using namespace std;
 

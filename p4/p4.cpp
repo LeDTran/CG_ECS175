@@ -152,7 +152,7 @@ void updateMinMax(){
 
   MASTERMIN = mastermin;
   MASTERMAX = mastermax;
-  cout << "MASTERMIN: " << mastermin << ", MASTERMAX: " << MASTERMAX << endl;
+  //cout << "MASTERMIN: " << mastermin << ", MASTERMAX: " << MASTERMAX << endl;
 }
 
 float getRatio(float coord, char axis){
@@ -263,7 +263,7 @@ void drawBSpline(int p){
   float k = allBSpline[p]->getKValue();
   //n = total control points - 1
   float n = allBSpline[p]->getNumCtrlPoints()-1;
-  cout << "k: " << k << ", n: " << n << endl;
+  //cout << "k: " << k << ", n: " << n << endl;
 
   vector<float> curvebx;
   vector<float> curveby;
@@ -301,8 +301,8 @@ void drawBSpline(int p){
     }
 
     //cout << "n: " << n << endl;
-    float x = bx[(int)(k-1)][(int)(I-(k-1))];
-    float y = by[(int)(k-1)][(int)(I-(k-1))];
+    //float x = bx[(int)(k-1)][(int)(I-(k-1))];
+    //float y = by[(int)(k-1)][(int)(I-(k-1))];
     //cout << "x: " << x << ", y: " << y << endl;
     //cout << "______________________________" << endl;
     curvebx.push_back(bx[(int)(k-1)][(int)(I-(k-1))]);
@@ -634,7 +634,7 @@ int main(int argc, char *argv[]){
 
   drawScene();
 
-  //createMenu();     
+  createMenu();     
 
   glutMainLoop();//main display loop, will display until terminate
   return 0;
