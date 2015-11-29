@@ -19,8 +19,9 @@ class Bezier{
     float getCtrlXPoint(int i);
     float getCtrlYPoint(int i);
     float getNumCtrlPoints();
-    void addCtrlPoint(float x, float y);
+    void insertCtrlPoint(int pos, float x, float y);
     void deleteCtrlPoint(int pointselection);
+    void modifyCtrlPoint(int pointselection, float x, float y);
 
     float getResolution();
     void setResolution(float r);

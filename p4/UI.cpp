@@ -1,37 +1,5 @@
 #include "UI.h"
 
-// void UISaveScene(){
-//   char choice;
-//   cout << "This will overwrite 'save.dat'. Are you sure you want to continue? (y/n): ";
-//   cin >> choice;
-//   if(choice == 'y'){
-//     //if(save.dat exists)
-//     remove("save.dat");
-
-//     ofstream outfile;
-//     outfile.open("save.dat");
-
-//     //write out polygon data
-//     for(int p = 0; p < (int)allPoly.size(); p++){
-//       outfile << "P" << endl;
-//       //output number of points
-//       outfile << allPoly[p]->getNumPoints() << endl;
-//       //output coords
-//       for(int i = 0; i < allPoly[p]->getNumPoints(); i++){
-//         outfile << allPoly[p]->getXPoint(i) << " " << allPoly[p]->getYPoint(i) << " " << allPoly[p]->getZPoint(i) << endl;
-//       }
-//       //output number of edge points
-//       outfile << allPoly[p]->getNumLineP() << endl;
-//       for(int i = 0; i < allPoly[p]->getNumLineP(); i++){
-//         outfile << allPoly[p]->getLineP1(i)+1 << " " << allPoly[p]->getLineP2(i)+1 << endl;
-//       }
-//       outfile << endl;
-//     }
-//   }
-//   else if(choice == 'n'){
-//   }
-// }
-
 void changeBezierReso(){
   if(allBezier.size() == 0){
     cout << "There are no Bezier curves" << endl;
@@ -50,7 +18,7 @@ void changeBezierReso(){
     curveselection = curveselection - 1;
 
     float reso;
-    cout << "Enter the resolution: ";
+    cout << "Enter the new resolution: ";
     cin >> reso;
 
     allBezier[curveselection]->setResolution(reso);
@@ -75,14 +43,14 @@ void changeBSplineReso(){
     curveselection = curveselection - 1;
 
     float reso;
-    cout << "Enter the resolution: ";
+    cout << "Enter the new resolution: ";
     cin >> reso;
 
     allBSpline[curveselection]->setResolution(reso);
   }
 }
 
-void addBezierPoint(){
+void insertBezierPoint(){
   if(allBezier.size() == 0){
     cout << "There are no Bezier curves" << endl;
   }
@@ -99,17 +67,43 @@ void addBezierPoint(){
     //turn selection into array index
     curveselection = curveselection - 1;
 
+    int pos = -1;
+    int numpoints = allBezier[curveselection]->getNumCtrlPoints();
+    while(!(1 <= pos && pos <= numpoints+1)){
+      //cout << "Please select a point to delete: " << endl;
+      for(int i = 1; i <= numpoints; i++){
+        cout << "(" << allBezier[curveselection]->getCtrlXPoint(i-1) << ", " 
+              <<  allBezier[curveselection]->getCtrlYPoint(i-1) << ") ";
+      }
+      cout << endl;
+
+      cout << "Select where to to insert a new control point: " << endl;
+      for(int i = 0; i <= numpoints; i++){
+        if(i == 0){
+          cout << "   1) At the beginning" << endl;
+        }
+        else{
+          cout << "   " << i+1 << ") After " << allBezier[curveselection]->getCtrlXPoint(i-1) 
+              << ", " <<  allBezier[curveselection]->getCtrlYPoint(i-1) << endl;
+        }
+      }
+      cout<< "Selection: ";
+      cin >> pos; 
+    }
+    //turn selection into array index
+    pos = pos - 1;
+
     float x, y;
     cout << "Enter the x coordinate of the new control point: ";
     cin >> x;
     cout << "Enter the y coordinate of the new control point: ";
     cin >> y;
 
-    allBezier[curveselection]->addCtrlPoint(x, y);
+    allBezier[curveselection]->insertCtrlPoint(pos, x, y);
   }
 }
 
-void addBSplinePoint(){
+void insertBSplinePoint(){
   if(allBSpline.size() == 0){
     cout << "There are no BSpline curves" << endl;
   }
@@ -126,15 +120,42 @@ void addBSplinePoint(){
     //turn selection into array index
     curveselection = curveselection - 1;
 
+    int pos = -1;
+    int numpoints = allBSpline[curveselection]->getNumCtrlPoints();
+    while(!(1 <= pos && pos <= numpoints+1)){
+      //cout << "Please select a point to delete: " << endl;
+      for(int i = 1; i <= numpoints; i++){
+        cout << "(" << allBSpline[curveselection]->getCtrlXPoint(i-1) << ", " 
+              <<  allBSpline[curveselection]->getCtrlYPoint(i-1) << ") ";
+      }
+      cout << endl;
+
+      cout << "Select where to to insert a new control point: " << endl;
+      for(int i = 0; i <= numpoints; i++){
+        if(i == 0){
+          cout << "   1) At the beginning" << endl;
+        }
+        else{
+          cout << "   " << i+1 << ") After " << allBSpline[curveselection]->getCtrlXPoint(i-1) 
+              << ", " <<  allBSpline[curveselection]->getCtrlYPoint(i-1) << endl;
+        }
+      }
+      cout<< "Selection: ";
+      cin >> pos; 
+    }
+    //turn selection into array index
+    pos = pos - 1;
+
     float x, y;
     cout << "Enter the x coordinate of the new control point: ";
     cin >> x;
     cout << "Enter the y coordinate of the new control point: ";
     cin >> y;
 
-    allBSpline[curveselection]->addCtrlPoint(x, y);
+    allBSpline[curveselection]->insertCtrlPoint(pos, x, y);
     allBSpline[curveselection]->addKnot();
   }
+
 }
 
 void deleteBezierPoint(){
@@ -210,9 +231,205 @@ void deleteBSplinePoint(){
   }
 }
 
+void modifyBezierPoint(){
+  if(allBezier.size() == 0){
+    cout << "There are no Bezier curves" << endl;
+  }
+  else{
+    int curveselection = -1;
+    while(!(1 <= curveselection && curveselection <= (int)allBezier.size())){
+      cout << "Please select a Bezier curve: " << endl;
+      for(int i = 1; i <= (int)allBezier.size(); i++){
+        cout << "   " << i << ") Bezier curve " << i << endl;
+      }
+      cout<< "Selection: ";
+      cin >> curveselection; 
+    }
+    //turn selection into array index
+    curveselection = curveselection - 1;
+
+
+    int pointselection = -1;
+    int numpoints = allBezier[curveselection]->getNumCtrlPoints();
+    while(!(1 <= pointselection && pointselection <= numpoints)){
+      cout << "Please select a point to modify: " << endl;
+      for(int i = 1; i <= numpoints; i++){
+        cout << "   " << i << ") " << allBezier[curveselection]->getCtrlXPoint(i-1) 
+              << ", " <<  allBezier[curveselection]->getCtrlYPoint(i-1) << endl;
+      }
+      cout<< "Selection: ";
+      cin >> pointselection; 
+    }
+    //turn selection into array index
+    pointselection = pointselection - 1;
+
+    float x, y;
+    cout << "Enter the new x coordinate for this control point: ";
+    cin >> x;
+    cout << "Enter the new y coordinate for this control point: ";
+    cin >> y;
+
+    allBezier[curveselection]->modifyCtrlPoint(pointselection, x, y); 
+  }
+}
+
+void modifyBSplinePoint(){
+  if(allBSpline.size() == 0){
+    cout << "There are no BSpline curves" << endl;
+  }
+  else{
+    int curveselection = -1;
+    while(!(1 <= curveselection && curveselection <= (int)allBSpline.size())){
+      cout << "Please select a BSpline curve: " << endl;
+      for(int i = 1; i <= (int)allBSpline.size(); i++){
+        cout << "   " << i << ") BSpline curve " << i << endl;
+      }
+      cout<< "Selection: ";
+      cin >> curveselection; 
+    }
+    //turn selection into array index
+    curveselection = curveselection - 1;
+
+
+    int pointselection = -1;
+    int numpoints = allBSpline[curveselection]->getNumCtrlPoints();
+    while(!(1 <= pointselection && pointselection <= numpoints)){
+      cout << "Please select a point to modify: " << endl;
+      for(int i = 1; i <= numpoints; i++){
+        cout << "   " << i << ") " << allBSpline[curveselection]->getCtrlXPoint(i-1) 
+              << ", " <<  allBSpline[curveselection]->getCtrlYPoint(i-1) << endl;
+      }
+      cout<< "Selection: ";
+      cin >> pointselection; 
+    }
+    //turn selection into array index
+    pointselection = pointselection - 1;
+
+    float x, y;
+    cout << "Enter the new x coordinate for this control point: ";
+    cin >> x;
+    cout << "Enter the new y coordinate for this control point: ";
+    cin >> y;
+
+    allBSpline[curveselection]->modifyCtrlPoint(pointselection, x, y); 
+  }
+}
+
+void changeOrderk(){
+  if(allBSpline.size() == 0){
+    cout << "There are no BSpline curves" << endl;
+  }
+  else{
+    int curveselection = -1;
+    while(!(1 <= curveselection && curveselection <= (int)allBSpline.size())){
+      cout << "Please select a BSpline curve: " << endl;
+      for(int i = 1; i <= (int)allBSpline.size(); i++){
+        cout << "   " << i << ") BSpline curve " << i << endl;
+      }
+      cout<< "Selection: ";
+      cin >> curveselection; 
+    }
+    //turn selection into array index
+    curveselection = curveselection - 1;
+
+    float k;
+    cout << "Enter the new order k: ";
+    cin >> k;
+
+    allBSpline[curveselection]->setKValue(k); 
+  }
+}
+
+void modifyKnots(){
+  if(allBSpline.size() == 0){
+    cout << "There are no BSpline curves" << endl;
+  }
+  else{
+    int curveselection = -1;
+    while(!(1 <= curveselection && curveselection <= (int)allBSpline.size())){
+      cout << "Please select a BSpline curve: " << endl;
+      for(int i = 1; i <= (int)allBSpline.size(); i++){
+        cout << "   " << i << ") BSpline curve " << i << endl;
+      }
+      cout<< "Selection: ";
+      cin >> curveselection; 
+    }
+    //turn selection into array index
+    curveselection = curveselection - 1;
+
+
+    vector<float> u = allBSpline[curveselection]->getKnots();
+    int pointselection = -1;
+    while(!(1 <= pointselection && pointselection <= (int)u.size())){
+      cout << "Please select a knot value to modify: " << endl;
+      for(int i = 1; i <= (int)u.size(); i++){
+        cout << "   " << i << ") " << u[i-1] << endl;
+      }
+      cout<< "Selection: ";
+      cin >> pointselection; 
+    }
+    //turn selection into array index
+    pointselection = pointselection - 1;
+
+    float knot;
+    cout << "Enter the new knot value: ";
+    cin >> knot;
+
+    allBSpline[curveselection]->modifyKnot(pointselection, knot); 
+  }
+}
+
+void UISaveScene(){
+  char choice;
+  cout << "This will overwrite 'save.dat'. Are you sure you want to continue? (y/n): ";
+  cin >> choice;
+  if(choice == 'y'){
+    //if(save.dat exists)
+    remove("save.dat");
+
+    ofstream outfile;
+    outfile.open("save.dat");
+
+    //write out bezier data
+    for(int i = 0; i < (int)allBezier.size(); i++){
+      outfile << "bz" << endl;
+      //output num control points
+      outfile << allBezier[i]->getNumCtrlPoints() << endl;
+      //output control points
+      for(int j = 0; j < (int)allBezier[i]->getNumCtrlPoints(); j++){
+        outfile << allBezier[i]->getCtrlXPoint(j) << " " << allBezier[i]->getCtrlYPoint(j) << endl;
+      }
+      outfile << endl;
+    }
+
+    //write out bspline data
+    for(int i = 0; i < (int)allBSpline.size(); i++){
+      //allBSpline[i]->printData();
+      outfile << "bs" << endl;
+      //output num control points
+      outfile << allBSpline[i]->getNumCtrlPoints() << endl;
+      //output k value
+      outfile << allBSpline[i]->getKValue() << endl;
+      //output knot existence specification (default to true)
+      outfile << "T" << endl;
+      //output control points
+      for(int j = 0; j < (int)allBSpline[i]->getNumCtrlPoints(); j++){
+        outfile << allBSpline[i]->getCtrlXPoint(j) << " " << allBSpline[i]->getCtrlYPoint(j) << endl;
+      }
+      //output knot values
+      vector<float> u = allBSpline[i]->getKnots();
+      for(int j = 0; j < (int)u.size(); j++){
+        outfile << u[j] << endl;
+      }
+      outfile << endl; 
+    }
+  }
+  else if(choice == 'n'){
+  }
+}
+
 static int window;
 static int menu_id;
-
 
 void resoMenu(int selection){
   if(selection == 0){
@@ -234,26 +451,6 @@ void resoMenu(int selection){
   }
 }
 
-void addMenu(int selection){
-  if(selection == 0){
-    glutDestroyWindow(window);
-    exit(0);
-  }else{
-    switch(selection){
-      case 1:;
-        addBezierPoint();
-        drawScene();
-        break;
-      case 2: 
-        addBSplinePoint();
-        drawScene();
-        break;
-      default:
-        break;
-    }
-  }
-}
-
 void insertMenu(int selection){
   if(selection == 0){
     glutDestroyWindow(window);
@@ -261,11 +458,11 @@ void insertMenu(int selection){
   }else{
     switch(selection){
       case 1:;
-        //addBezierPoint();
+        insertBezierPoint();
         drawScene();
         break;
       case 2: 
-        //addBSplinePoint();
+        insertBSplinePoint();
         drawScene();
         break;
       default:
@@ -294,33 +491,42 @@ void deleteMenu(int selection){
   }
 }
 
+void modifyMenu(int selection){
+  if(selection == 0){
+    glutDestroyWindow(window);
+    exit(0);
+  }else{
+    switch(selection){
+      case 1:;
+        modifyBezierPoint();
+        drawScene();
+        break;
+      case 2: 
+        modifyBSplinePoint();
+        drawScene();
+        break;
+      default:
+        break;
+    }
+  }
+}
+
 void menu(int selection){
   if(selection == 0){
     glutDestroyWindow(window);
     exit(0);
   }else{
     switch(selection){
-      // case 1:
-      //   changeBezierReso();
-      //   drawScene();
-      //   break;
-      // case 2:
-      //   changeBSplineReso();
-      //   drawScene();
-      //   break;
-      // case 3:;
-      //   addBezierPoint();
-      //   drawScene();
-      //   break;
-      // case 4: 
-      //   addBSplinePoint();
-      //   drawScene();
-      //   break;
-      case 5:
+      case 1:
+        changeOrderk();
+        drawScene();
         break;
-      case 6:
+      case 2:
+        modifyKnots();
+        drawScene();
         break;
-      case 7:
+      case 3:;
+        UISaveScene();
         break;
       default:
         break;
@@ -334,10 +540,6 @@ void createMenu(void){
   glutAddMenuEntry("Change Bezier Curve Resolution", 1);
   glutAddMenuEntry("Change BSpline Curve Resolution", 2);
 
-  static int addmenu = glutCreateMenu(addMenu);
-  glutAddMenuEntry("To Bezier Curve", 1);
-  glutAddMenuEntry("To BSpline Curve", 2);
-
   static int insertmenu = glutCreateMenu(insertMenu);
   glutAddMenuEntry("To Bezier Curve", 1);
   glutAddMenuEntry("To BSpline Curve", 2);
@@ -346,17 +548,18 @@ void createMenu(void){
   glutAddMenuEntry("From Bezier Curve", 1);
   glutAddMenuEntry("From BSpline Curve", 2);
 
+  static int modifymenu = glutCreateMenu(modifyMenu);
+  glutAddMenuEntry("Of Bezier Curve", 1);
+  glutAddMenuEntry("Of BSpline Curve", 2);
 
   menu_id = glutCreateMenu(menu);
   glutAddSubMenu("Change Resolution", resomenu);
-  glutAddSubMenu("Add Control Point", addmenu);
   glutAddSubMenu("Insert Control Point", insertmenu);
   glutAddSubMenu("Delete Control Point", deletemenu);
-
-  // glutAddSubMenu("Turn On Half Tone Mode", 11);
-  // glutAddMenuEntry("Turn Off Half Tone Mode", 12);
-  // glutAddMenuEntry("Animate Rotation of Scene", 13);
-  // glutAddMenuEntry("Stop Animated Rotation of Scene", 14);
-  // glutAddMenuEntry("Quit", 0);     
+  glutAddSubMenu("Modify Control Point", modifymenu);
+  glutAddMenuEntry("Change BSpline Order k", 1);
+  glutAddMenuEntry("Modify BSpline Knot Values", 2);
+  glutAddMenuEntry("Save Scene", 3);
+  glutAddMenuEntry("Quit", 0);     
   glutAttachMenu(GLUT_RIGHT_BUTTON);
 } 

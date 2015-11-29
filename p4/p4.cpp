@@ -273,6 +273,7 @@ void drawBSpline(int p){
   //for(int k = reso/2; k < (reso/2)+1; k++){
     float ubar = allBSpline[p]->getUBar(k, n, (float)r);    
     float I = allBSpline[p]->getI(ubar);
+    //cout << "ubar: " << ubar << endl;
 
     float bx[100][100];
     float by[100][100];

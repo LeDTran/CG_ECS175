@@ -42,14 +42,19 @@ float BSpline::getNumCtrlPoints(){
   return ctrlxpoints.size();
 }
 
-void BSpline::addCtrlPoint(float x, float y){
-  ctrlxpoints.push_back(x);
-  ctrlypoints.push_back(y);
+void BSpline::insertCtrlPoint(int pos, float x, float y){
+  ctrlxpoints.insert(ctrlxpoints.begin()+pos, x);
+  ctrlypoints.insert(ctrlypoints.begin()+pos, y);
 }
 
 void BSpline::deleteCtrlPoint(int pointselection){
   ctrlxpoints.erase(ctrlxpoints.begin()+pointselection);
   ctrlypoints.erase(ctrlypoints.begin()+pointselection);
+}
+
+void BSpline::modifyCtrlPoint(int pointselection, float x, float y){
+  ctrlxpoints[pointselection] = x;
+  ctrlypoints[pointselection] = y;
 }
 
 
@@ -61,9 +66,15 @@ void BSpline::setResolution(float r){
   resolution = r;
 }
 
+
 float BSpline::getKValue(){
   return kvalue;
 }
+
+void BSpline::setKValue(float k){
+  kvalue = k;
+}
+
 
 float BSpline::getUBar(float k, float n, float a){
   //cout << "first: " << knots[k-1] << ", second: " << knots[n+1] + knots[k-1] << endl;
@@ -96,4 +107,16 @@ void BSpline::addKnot(){
 
 void BSpline::deleteKnot(){
   knots.erase(knots.end()-1);
+}
+
+void BSpline::modifyKnot(int pointselection, float knot){
+  knots[pointselection] = knot;
+}
+
+int BSpline::getNumKnots(){
+  return knots.size();
+}
+
+float BSpline::getKnotValue(int i){
+  return knots[i];
 }

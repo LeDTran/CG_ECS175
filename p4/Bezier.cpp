@@ -33,14 +33,19 @@ float Bezier::getNumCtrlPoints(){
   return ctrlxpoints.size();
 }
 
-void Bezier::addCtrlPoint(float x, float y){
-  ctrlxpoints.push_back(x);
-  ctrlypoints.push_back(y);
+void Bezier::insertCtrlPoint(int pos, float x, float y){
+  ctrlxpoints.insert(ctrlxpoints.begin()+pos, x);
+  ctrlypoints.insert(ctrlypoints.begin()+pos, y);
 }
 
 void Bezier::deleteCtrlPoint(int pointselection){
   ctrlxpoints.erase(ctrlxpoints.begin()+pointselection);
   ctrlypoints.erase(ctrlypoints.begin()+pointselection);
+}
+
+void Bezier::modifyCtrlPoint(int pointselection, float x, float y){
+  ctrlxpoints[pointselection] = x;
+  ctrlypoints[pointselection] = y;
 }
 
 
